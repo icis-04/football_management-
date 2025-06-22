@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { AdvancedTeamController } from '../controllers/AdvancedTeamController';
-import { authenticate, requireAdmin } from '../middlewares/auth';
-import { validateRequest } from '../middlewares/validation';
+import { authenticate } from '../middlewares/auth';
+import { validateRequest } from '../middlewares/validateRequest';
+import { requireAdmin } from '../middlewares/requireAdmin';
 import Joi from 'joi';
 
 const router = Router();

@@ -1,11 +1,12 @@
 import rateLimit from 'express-rate-limit';
-import { config } from '../config/environment';
+import { config, isDevelopment } from '../config/environment';
 import { logger } from '../config/logger';
 
 // Global rate limiter
 export const globalRateLimiter = rateLimit({
   windowMs: config.RATE_LIMIT_WINDOW_MS, // 15 minutes default
-  max: config.RATE_LIMIT_MAX_REQUESTS, // 100 requests per window default
+  max: config.RATE_LIMIT_MAX_REQUESTS, // 10000 requests per window default
+  skip: () => isDevelopment(), // Skip rate limiting in development
   message: {
     error: {
       code: 'TOO_MANY_REQUESTS',
@@ -36,7 +37,8 @@ export const globalRateLimiter = rateLimit({
 // Stricter rate limiter for authentication endpoints
 export const authRateLimiter = rateLimit({
   windowMs: config.RATE_LIMIT_WINDOW_MS, // 15 minutes
-  max: config.RATE_LIMIT_AUTH_MAX_REQUESTS, // 5 requests per window default
+  max: config.RATE_LIMIT_AUTH_MAX_REQUESTS, // 500 requests per window default
+  skip: () => isDevelopment(), // Skip rate limiting in development
   message: {
     error: {
       code: 'TOO_MANY_AUTH_ATTEMPTS',
@@ -84,7 +86,7 @@ export const adminRateLimiter = rateLimit({
       userAgent: req.get('User-Agent'),
       url: req.url,
       method: req.method,
-      userId: req.user?.id
+      userId: req.user?.userId
     });
     
     res.status(429).json({
@@ -100,7 +102,7 @@ export const adminRateLimiter = rateLimit({
 // File upload rate limiter
 export const uploadRateLimiter = rateLimit({
   windowMs: config.RATE_LIMIT_WINDOW_MS, // 15 minutes
-  max: 10, // 10 uploads per window
+  max: 1000, // 1000 uploads per window for development
   message: {
     error: {
       code: 'TOO_MANY_UPLOADS',
@@ -114,7 +116,7 @@ export const uploadRateLimiter = rateLimit({
     logger.warn(`Upload rate limit exceeded for IP: ${req.ip}`, {
       ip: req.ip,
       userAgent: req.get('User-Agent'),
-      userId: req.user?.id
+      userId: req.user?.userId
     });
     
     res.status(429).json({

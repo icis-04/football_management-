@@ -35,7 +35,7 @@ export class UserController {
 
   getMe = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
-      const userId = req.user!.id;
+      const userId = req.user!.userId;
       const user = await this.userService.getUserProfile(userId);
 
       if (!user) {
@@ -50,7 +50,7 @@ export class UserController {
 
       res.json(createApiResponse(true, { user }));
     } catch (error) {
-      logger.error('Get user profile failed', { error: (error as Error).message, userId: req.user?.id });
+      logger.error('Get user profile failed', { error: (error as Error).message, userId: req.user?.userId });
       res.status(500).json(
         createApiResponse(false, undefined, undefined, {
           code: 'INTERNAL_ERROR',
@@ -62,7 +62,7 @@ export class UserController {
 
   updateMe = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
-      const userId = req.user!.id;
+      const userId = req.user!.userId;
       const { name, preferredPosition } = req.body;
 
       const updatedUser = await this.userService.updateUserProfile(userId, {
@@ -82,7 +82,7 @@ export class UserController {
         return;
       }
 
-      logger.error('Update user profile failed', { error: (error as Error).message, userId: req.user?.id });
+      logger.error('Update user profile failed', { error: (error as Error).message, userId: req.user?.userId });
       res.status(500).json(
         createApiResponse(false, undefined, undefined, {
           code: 'INTERNAL_ERROR',
@@ -94,7 +94,7 @@ export class UserController {
 
   uploadAvatar = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
-      const userId = req.user!.id;
+      const userId = req.user!.userId;
 
       if (!req.file) {
         res.status(400).json(
@@ -136,7 +136,7 @@ export class UserController {
         return;
       }
 
-      logger.error('Upload avatar failed', { error: (error as Error).message, userId: req.user?.id });
+      logger.error('Upload avatar failed', { error: (error as Error).message, userId: req.user?.userId });
       res.status(500).json(
         createApiResponse(false, undefined, undefined, {
           code: 'INTERNAL_ERROR',
@@ -148,7 +148,7 @@ export class UserController {
 
   removeAvatar = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
-      const userId = req.user!.id;
+      const userId = req.user!.userId;
 
       // Get current user to check if they have an avatar
       const currentUser = await this.userService.getUserProfile(userId);
@@ -190,7 +190,7 @@ export class UserController {
         return;
       }
 
-      logger.error('Remove avatar failed', { error: (error as Error).message, userId: req.user?.id });
+      logger.error('Remove avatar failed', { error: (error as Error).message, userId: req.user?.userId });
       res.status(500).json(
         createApiResponse(false, undefined, undefined, {
           code: 'INTERNAL_ERROR',

@@ -7,9 +7,37 @@
 @layer base {
   html {
     @apply antialiased;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
   }
   
   body {
     @apply bg-gray-50 text-gray-900;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Prevent text selection on buttons */
+  button {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  /* Improve touch targets on mobile */
+  @media (max-width: 768px) {
+    button, a, input, textarea, select {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Fix iOS form zoom */
+  input, textarea, select {
+    font-size: 16px;
   }
 } 

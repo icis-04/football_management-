@@ -190,18 +190,33 @@ export const isValidPassword = (password: string): boolean => {
  * Create API response object
  */
 export const createApiResponse = (
-  message: string,
-  data?: any
+  success: boolean,
+  data?: any,
+  message?: string,
+  error?: any
 ): {
   success: boolean;
-  message: string;
+  message?: string;
   data?: any;
+  error?: any;
 } => {
-  return {
-    success: true,
-    message,
-    data
+  const response: any = {
+    success
   };
+  
+  if (message) {
+    response.message = message;
+  }
+  
+  if (data !== undefined) {
+    response.data = data;
+  }
+  
+  if (error !== undefined) {
+    response.error = error;
+  }
+  
+  return response;
 };
 
 /**

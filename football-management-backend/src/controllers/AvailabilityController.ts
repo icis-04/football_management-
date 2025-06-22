@@ -13,7 +13,7 @@ export class AvailabilityController {
 
   submitAvailability = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
-      const userId = req.user!.id;
+      const userId = req.user!.userId;
       const { matchDate, isAvailable } = req.body;
 
       // Parse match date
@@ -55,7 +55,7 @@ export class AvailabilityController {
 
       logger.error('Submit availability failed', {
         error: (error as Error).message,
-        userId: req.user?.id,
+        userId: req.user?.userId,
       });
       res.status(500).json(
         createApiResponse(false, undefined, undefined, {
@@ -68,14 +68,14 @@ export class AvailabilityController {
 
   getMyAvailability = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
-      const userId = req.user!.id;
+      const userId = req.user!.userId;
       const availability = await this.availabilityService.getUserAvailability(userId);
 
       res.json(createApiResponse(true, { availability }));
     } catch (error) {
       logger.error('Get user availability failed', {
         error: (error as Error).message,
-        userId: req.user?.id,
+        userId: req.user?.userId,
       });
       res.status(500).json(
         createApiResponse(false, undefined, undefined, {
@@ -122,7 +122,7 @@ export class AvailabilityController {
 
   updateAvailability = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
-      const userId = req.user!.id;
+      const userId = req.user!.userId;
       const { date } = req.params;
       const { isAvailable } = req.body;
 
@@ -165,7 +165,7 @@ export class AvailabilityController {
 
       logger.error('Update availability failed', {
         error: (error as Error).message,
-        userId: req.user?.id,
+        userId: req.user?.userId,
         date: req.params['date'],
       });
       res.status(500).json(

@@ -5,46 +5,15 @@ import { Button } from '../components/common/Button';
 import { Spinner } from '../components/common/Spinner';
 import { useAuthStore } from '../stores/authStore';
 import { UserGroupIcon, CalendarIcon, TrophyIcon, ShareIcon } from '@heroicons/react/24/outline';
-
-interface Player {
-  id: number;
-  name: string;
-  position: string;
-  assignedPosition?: string;
-  profilePicUrl?: string;
-  isSubstitute?: boolean;
-  substituteForPosition?: string;
-}
-
-interface Team {
-  teamNumber: number;
-  teamName: string;
-  players: Player[];
-  substitutes: Player[];
-}
-
-interface TeamMatch {
-  matchDate: Date;
-  teams: Team[];
-  isPublished: boolean;
-  publishedAt?: Date;
-}
-
-interface HistoricalMatch {
-  matchDate: Date;
-  teamNumber: number;
-  teamName: string;
-  playersCount: number;
-  wasSubstitute: boolean;
-}
+import { teamsApi, type TeamMatch, type TeamHistory } from '../api/teams';
 
 export const TeamsPage: React.FC = () => {
   const { user } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [currentMatch, setCurrentMatch] = useState<TeamMatch | null>(null);
-  const [upcomingMatch, setUpcomingMatch] = useState<TeamMatch | null>(null);
-  const [matchHistory, setMatchHistory] = useState<HistoricalMatch[]>([]);
+  const [matchHistory, setMatchHistory] = useState<TeamHistory[]>([]);
   const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTeamsData();
@@ -53,133 +22,21 @@ export const TeamsPage: React.FC = () => {
   const fetchTeamsData = async () => {
     try {
       setLoading(true);
-      // TODO: Replace with actual API calls
+      setError(null);
       
-      // Mock data
-      const today = new Date();
-      const now = new Date();
-      const isAfterNoon = now.getHours() >= 12;
+      // Fetch current teams
+      const currentTeams = await teamsApi.getCurrentTeams();
+      setCurrentMatch(currentTeams);
       
-      // Check if today is Monday or Wednesday
-      const dayOfWeek = today.getDay();
-      const isMatchDay = dayOfWeek === 1 || dayOfWeek === 3;
-      
-      if (isMatchDay && isAfterNoon) {
-        // Teams are published for today
-        setCurrentMatch({
-          matchDate: startOfDay(today),
-          isPublished: true,
-          publishedAt: new Date(today.setHours(12, 0, 0, 0)),
-          teams: [
-            {
-              teamNumber: 1,
-              teamName: 'Team Red',
-              players: [
-                { id: 1, name: 'John Doe', position: 'goalkeeper', assignedPosition: 'goalkeeper' },
-                { id: 2, name: 'Jane Smith', position: 'defender' },
-                { id: 3, name: 'Mike Johnson', position: 'midfielder' },
-                { id: 4, name: 'Sarah Williams', position: 'forward' },
-                { id: 5, name: 'Tom Brown', position: 'defender' },
-                { id: 6, name: 'Emma Davis', position: 'midfielder' },
-                { id: 7, name: 'Chris Wilson', position: 'forward' },
-                { id: 8, name: 'Lisa Anderson', position: 'defender' },
-                { id: 9, name: 'David Martinez', position: 'midfielder' },
-                { id: 10, name: 'Amy Taylor', position: 'any' },
-              ],
-              substitutes: [
-                { 
-                  id: 11, 
-                  name: 'Peter Garcia', 
-                  position: 'goalkeeper', 
-                  isSubstitute: true,
-                  substituteForPosition: 'goalkeeper'
-                },
-              ],
-            },
-            {
-              teamNumber: 2,
-              teamName: 'Team Blue',
-              players: [
-                { id: 12, name: 'Robert Lee', position: 'goalkeeper', assignedPosition: 'goalkeeper' },
-                { id: 13, name: 'Maria Rodriguez', position: 'defender' },
-                { id: 14, name: 'James White', position: 'midfielder' },
-                { id: 15, name: 'Patricia Harris', position: 'forward' },
-                { id: 16, name: 'Michael Clark', position: 'defender' },
-                { id: 17, name: 'Jennifer Lewis', position: 'midfielder' },
-                { id: 18, name: 'William Walker', position: 'forward' },
-                { id: 19, name: 'Elizabeth Hall', position: 'defender' },
-                { id: 20, name: 'Daniel Allen', position: 'midfielder' },
-                { id: 21, name: 'Susan Young', position: 'any' },
-              ],
-              substitutes: [
-                { 
-                  id: 22, 
-                  name: 'Kevin King', 
-                  position: 'forward', 
-                  isSubstitute: true,
-                  substituteForPosition: 'forward'
-                },
-              ],
-            },
-          ],
-        });
-      } else {
-        // Show next match teams if available (for preview)
-        const nextMonday = getNextWeekday(today, 1);
-        const nextWednesday = getNextWeekday(today, 3);
-        const nextMatch = nextMonday < nextWednesday ? nextMonday : nextWednesday;
-        
-        setUpcomingMatch({
-          matchDate: nextMatch,
-          isPublished: false,
-          teams: [],
-        });
-      }
-      
-      // Mock match history
-      setMatchHistory([
-        {
-          matchDate: new Date('2025-01-13'),
-          teamNumber: 1,
-          teamName: 'Team Red',
-          playersCount: 10,
-          wasSubstitute: false,
-        },
-        {
-          matchDate: new Date('2025-01-08'),
-          teamNumber: 2,
-          teamName: 'Team Blue',
-          playersCount: 10,
-          wasSubstitute: false,
-        },
-        {
-          matchDate: new Date('2025-01-06'),
-          teamNumber: 1,
-          teamName: 'Team Red',
-          playersCount: 11,
-          wasSubstitute: true,
-        },
-        {
-          matchDate: new Date('2025-01-01'),
-          teamNumber: 3,
-          teamName: 'Team Green',
-          playersCount: 8,
-          wasSubstitute: false,
-        },
-      ]);
+      // Fetch match history
+      const history = await teamsApi.getMyTeamHistory();
+      setMatchHistory(history);
     } catch (error) {
       console.error('Error fetching teams data:', error);
+      setError('Failed to load teams data. Please try again later.');
     } finally {
       setLoading(false);
     }
-  };
-
-  const getNextWeekday = (date: Date, dayOfWeek: number): Date => {
-    const result = new Date(date);
-    const currentDay = result.getDay();
-    const daysUntilNext = (dayOfWeek - currentDay + 7) % 7 || 7;
-    result.setDate(result.getDate() + daysUntilNext);
-    return startOfDay(result);
   };
 
   const getTeamColor = (teamNumber: number): string => {
@@ -201,7 +58,7 @@ export const TeamsPage: React.FC = () => {
       return `${team.teamName}:\n${playersList}${substitutesList}`;
     }).join('\n\n');
 
-    const message = `Football Teams - ${format(match.matchDate, 'EEEE, MMMM d')}\n\n${teamsText}`;
+    const message = `Football Teams - ${format(new Date(match.matchDate), 'EEEE, MMMM d')}\n\n${teamsText}`;
 
     // Check if Web Share API is available
     if (navigator.share) {
@@ -221,9 +78,9 @@ export const TeamsPage: React.FC = () => {
     }
   };
 
-  const renderTeamCard = (team: Team) => {
-    const userInTeam = team.players.find(p => p.id === user?.id);
-    const userIsSubstitute = team.substitutes.find(p => p.id === user?.id);
+  const renderTeamCard = (team: any) => {
+    const userInTeam = team.players.find((p: any) => p.id === user?.id);
+    const userIsSubstitute = team.substitutes.find((p: any) => p.id === user?.id);
     const isUserTeam = userInTeam || userIsSubstitute;
 
     return (
@@ -255,7 +112,7 @@ export const TeamsPage: React.FC = () => {
             <div>
               <h4 className="text-sm font-medium text-gray-700 mb-2">Starting Players</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {team.players.map((player) => (
+                {team.players.map((player: any) => (
                   <div
                     key={player.id}
                     className={`flex items-center space-x-3 p-2 rounded-lg ${
@@ -285,7 +142,7 @@ export const TeamsPage: React.FC = () => {
               <div className="mt-4 pt-4 border-t">
                 <h4 className="text-sm font-medium text-gray-700 mb-2">Substitutes</h4>
                 <div className="space-y-2">
-                  {team.substitutes.map((player) => (
+                  {team.substitutes.map((player: any) => (
                     <div
                       key={player.id}
                       className={`flex items-center space-x-3 p-2 rounded-lg ${
@@ -321,6 +178,19 @@ export const TeamsPage: React.FC = () => {
       <div className="flex justify-center items-center h-64">
         <Spinner />
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <div className="p-12 text-center">
+          <p className="text-red-600">{error}</p>
+          <Button onClick={fetchTeamsData} className="mt-4">
+            Retry
+          </Button>
+        </div>
+      </Card>
     );
   }
 
@@ -370,12 +240,12 @@ export const TeamsPage: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900">
-                  Teams for {format(currentMatch.matchDate, 'EEEE, MMMM d')}
+                  Teams for {format(new Date(currentMatch.matchDate), 'EEEE, MMMM d')}
                 </h2>
                 <div className="flex items-center space-x-4">
                   {currentMatch.publishedAt && (
                     <span className="text-sm text-gray-500">
-                      Published at {format(currentMatch.publishedAt, 'h:mm a')}
+                      Published at {format(new Date(currentMatch.publishedAt), 'h:mm a')}
                     </span>
                   )}
                   <Button
@@ -390,7 +260,7 @@ export const TeamsPage: React.FC = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 {currentMatch.teams.map((team) => renderTeamCard(team))}
               </div>
 
@@ -411,9 +281,7 @@ export const TeamsPage: React.FC = () => {
               <div className="p-12 text-center">
                 <UserGroupIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-600">
-                  {upcomingMatch
-                    ? `Teams will be published on ${format(upcomingMatch.matchDate, 'EEEE')} at 12:00 PM`
-                    : 'No teams published yet'}
+                  No teams published yet. Teams will be published on match day at 12:00 PM.
                 </p>
               </div>
             </Card>
@@ -437,7 +305,7 @@ export const TeamsPage: React.FC = () => {
                             <CalendarIcon className="w-5 h-5 text-gray-400" />
                             <div>
                               <p className="font-medium text-gray-900">
-                                {format(match.matchDate, 'EEEE, MMMM d, yyyy')}
+                                {format(new Date(match.matchDate), 'EEEE, MMMM d, yyyy')}
                               </p>
                               <div className="flex items-center space-x-3 mt-1">
                                 <span className={`text-sm font-medium ${getTeamTextColor(match.teamNumber)}`}>
@@ -499,7 +367,7 @@ export const TeamsPage: React.FC = () => {
               <Card>
                 <div className="p-12 text-center">
                   <CalendarIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No match history available</p>
+                  <p className="text-gray-600">No match history yet</p>
                 </div>
               </Card>
             )}

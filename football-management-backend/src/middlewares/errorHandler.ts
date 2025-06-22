@@ -22,7 +22,7 @@ export const errorHandler = (
     method: req.method,
     ip: req.ip,
     userAgent: req.get('User-Agent'),
-    userId: req.user?.id
+    userId: req.user?.userId
   });
 
   // Default error values

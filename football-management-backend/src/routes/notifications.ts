@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { NotificationController } from '../controllers/NotificationController';
 import { authenticate } from '../middlewares/auth';
-import { validateRequest } from '../middlewares/validation';
+import { validate } from '../middlewares/validation';
 import Joi from 'joi';
 
 const router = Router();
@@ -33,7 +33,7 @@ router.get('/preferences', notificationController.getPreferences.bind(notificati
 
 // Update notification preferences
 router.put('/preferences', 
-  validateRequest(updatePreferencesSchema),
+  validate(updatePreferencesSchema),
   notificationController.updatePreferences.bind(notificationController)
 );
 

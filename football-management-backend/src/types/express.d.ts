@@ -1,9 +1,9 @@
-import { User } from '../models/User';
+import { JWTPayload } from './auth';
 
 declare global {
   namespace Express {
     interface Request {
-      user?: User;
+      user?: JWTPayload;
     }
   }
 } 

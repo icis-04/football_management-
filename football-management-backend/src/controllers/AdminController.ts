@@ -16,7 +16,7 @@ export class AdminController {
   addAllowedEmail = async (req: Request, res: Response): Promise<void> => {
     try {
       const { email } = req.body;
-      const adminId = req.user!.id;
+      const adminId = req.user!.userId;
 
       const result = await this.adminService.addAllowedEmail(email, adminId);
 
@@ -28,7 +28,7 @@ export class AdminController {
     } catch (error) {
       logger.error('Admin add allowed email failed', {
         error: (error as Error).message,
-        adminId: req.user?.id
+        adminId: req.user?.userId
       });
 
       const message = (error as Error).message;
@@ -62,7 +62,7 @@ export class AdminController {
     } catch (error) {
       logger.error('Admin get allowed emails failed', {
         error: (error as Error).message,
-        adminId: req.user?.id
+        adminId: req.user?.userId
       });
 
       res.status(500).json({
@@ -79,7 +79,7 @@ export class AdminController {
   removeAllowedEmail = async (req: Request, res: Response): Promise<void> => {
     try {
       const emailId = parseInt(req.params['id'] || '0');
-      const adminId = req.user!.id;
+      const adminId = req.user!.userId;
 
       if (isNaN(emailId) || emailId === 0) {
         res.status(400).json({
@@ -100,7 +100,7 @@ export class AdminController {
       logger.error('Admin remove allowed email failed', {
         error: (error as Error).message,
         emailId: req.params['id'],
-        adminId: req.user?.id
+        adminId: req.user?.userId
       });
 
       const message = (error as Error).message;
@@ -132,7 +132,7 @@ export class AdminController {
   bulkAddAllowedEmails = async (req: Request, res: Response): Promise<void> => {
     try {
       const { emails } = req.body;
-      const adminId = req.user!.id;
+      const adminId = req.user!.userId;
 
       if (!Array.isArray(emails) || emails.length === 0) {
         res.status(400).json({
@@ -162,7 +162,7 @@ export class AdminController {
     } catch (error) {
       logger.error('Admin bulk add allowed emails failed', {
         error: (error as Error).message,
-        adminId: req.user?.id
+        adminId: req.user?.userId
       });
 
       res.status(500).json({
@@ -187,7 +187,7 @@ export class AdminController {
     } catch (error) {
       logger.error('Admin get all users failed', {
         error: (error as Error).message,
-        adminId: req.user?.id
+        adminId: req.user?.userId
       });
 
       res.status(500).json({
@@ -205,7 +205,7 @@ export class AdminController {
     try {
       const userId = parseInt(req.params['id'] || '0');
       const { isActive } = req.body;
-      const adminId = req.user!.id;
+      const adminId = req.user!.userId;
 
       if (isNaN(userId) || userId === 0) {
         res.status(400).json({
@@ -235,7 +235,7 @@ export class AdminController {
       logger.error('Admin update user status failed', {
         error: (error as Error).message,
         userId: req.params['id'],
-        adminId: req.user?.id
+        adminId: req.user?.userId
       });
 
       const message = (error as Error).message;
@@ -275,7 +275,7 @@ export class AdminController {
     } catch (error) {
       logger.error('Admin get availability analytics failed', {
         error: (error as Error).message,
-        adminId: req.user?.id
+        adminId: req.user?.userId
       });
 
       res.status(500).json({
@@ -312,7 +312,7 @@ export class AdminController {
     } catch (error) {
       logger.error('Admin get audit log failed', {
         error: (error as Error).message,
-        adminId: req.user?.id
+        adminId: req.user?.userId
       });
 
       res.status(500).json({

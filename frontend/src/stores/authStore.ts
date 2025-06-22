@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import type { User, LoginCredentials, SignupData } from '../types';
 import { setTokens, clearTokens } from '../api/client';
 import { authApi } from '../api/auth';
-import { apiClient } from '../api/client';
+import { usersApi } from '../api/users';
 
 interface AuthState {
   user: User | null;
@@ -91,19 +91,13 @@ export const useAuthStore = create<AuthState>()(
 
       refreshUser: async () => {
         try {
-          // For mock development, just check if we have tokens
-          if (import.meta.env.DEV) {
-            const token = localStorage.getItem('access_token');
-            if (!token) {
-              get().logout();
-              return;
-            }
-            // Keep existing user data in development
+          const token = localStorage.getItem('access_token');
+          if (!token) {
+            get().logout();
             return;
           }
           
-          const response = await apiClient.get<User>('/users/me');
-          const user = response.data;
+          const user = await usersApi.getMe();
           
           set({
             user,

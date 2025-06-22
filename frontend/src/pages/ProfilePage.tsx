@@ -6,7 +6,7 @@ import { Input } from '../components/common/Input';
 import { Spinner } from '../components/common/Spinner';
 import { useAuthStore } from '../stores/authStore';
 import { UserCircleIcon, CameraIcon, CheckIcon } from '@heroicons/react/24/outline';
-
+import { usersApi } from '../api/users';
 import type { Position } from '../types';
 
 interface ProfileFormData {
@@ -34,6 +34,7 @@ export const ProfilePage: React.FC = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Check if redirected from ProfileCompletionCheck
@@ -56,23 +57,23 @@ export const ProfilePage: React.FC = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      // TODO: Replace with actual API call
+      setError(null);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Update local state
-      updateUser({
-        ...user!,
+      // Update profile via API
+      const updatedUser = await usersApi.updateMe({
         name: formData.name,
         preferredPosition: formData.preferredPosition,
       });
+      
+      // Update local state
+      updateUser(updatedUser);
       
       setIsEditing(false);
       setSuccessMessage('Profile updated successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Error updating profile:', error);
+      setError('Failed to update profile. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -100,24 +101,22 @@ export const ProfilePage: React.FC = () => {
 
     try {
       setUploadingAvatar(true);
-      // TODO: Replace with actual API call
+      setError(null);
       
-      // Simulate file upload
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Create a preview URL
-      const previewUrl = URL.createObjectURL(file);
+      // Upload avatar via API
+      const { profilePicUrl } = await usersApi.uploadAvatar(file);
       
       // Update local state
       updateUser({
         ...user!,
-        profilePicUrl: previewUrl,
+        profilePicUrl,
       });
       
       setSuccessMessage('Profile picture updated!');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Error uploading avatar:', error);
+      setError('Failed to upload profile picture. Please try again.');
     } finally {
       setUploadingAvatar(false);
     }
@@ -126,10 +125,10 @@ export const ProfilePage: React.FC = () => {
   const handleRemoveAvatar = async () => {
     try {
       setUploadingAvatar(true);
-      // TODO: Replace with actual API call
+      setError(null);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Remove avatar via API
+      await usersApi.removeAvatar();
       
       // Update local state
       updateUser({
@@ -141,6 +140,7 @@ export const ProfilePage: React.FC = () => {
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Error removing avatar:', error);
+      setError('Failed to remove profile picture. Please try again.');
     } finally {
       setUploadingAvatar(false);
     }
@@ -190,6 +190,13 @@ export const ProfilePage: React.FC = () => {
         </div>
       )}
 
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800">{error}</p>
+        </div>
+      )}
+
       {/* Profile Completion */}
       <Card>
         <div className="p-6">
@@ -216,7 +223,7 @@ export const ProfilePage: React.FC = () => {
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {/* Avatar Section */}
         <Card className="lg:col-span-1">
           <div className="p-6">

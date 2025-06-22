@@ -1,12 +1,11 @@
 import { Router } from 'express';
 import { AuthController } from '../controllers/AuthController';
 import { authenticate } from '../middlewares/auth';
-import { validate, validateQuery } from '../middlewares/validation';
+import { validate } from '../middlewares/validation';
 import {
   signupSchema,
   loginSchema,
   refreshTokenSchema,
-  verifyEmailSchema,
   updateProfileSchema,
 } from '../validators/auth';
 import { validateRequest } from '../middlewares/validateRequest';
@@ -149,7 +148,7 @@ router.post('/login', rateLimiter.auth, validateRequest(loginSchema), authContro
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/refresh', validateRequest(refreshTokenSchema), authController.refresh.bind(authController));
+router.post('/refresh', validateRequest(refreshTokenSchema), authController.refreshToken.bind(authController));
 
 /**
  * @swagger
@@ -219,7 +218,7 @@ router.post('/logout', authController.logout.bind(authController));
 router.get('/verify-email', authController.verifyEmail.bind(authController));
 
 // Protected routes
-router.get('/me', authenticate, authController.getProfile as any);
-router.put('/me', authenticate, validate(updateProfileSchema), authController.updateProfile as any);
+router.get('/me', authenticate, authController.getProfile.bind(authController));
+router.put('/me', authenticate, validate(updateProfileSchema), authController.updateProfile.bind(authController));
 
 export default router;

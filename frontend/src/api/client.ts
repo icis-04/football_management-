@@ -2,7 +2,23 @@ import axios, { AxiosError } from 'axios';
 import type { InternalAxiosRequestConfig } from 'axios';
 import type { ApiError } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+// Dynamically determine API URL based on current host
+const getApiBaseUrl = () => {
+  // If VITE_API_URL is set, use it
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // If accessing from localhost, use localhost
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:3000/api/v1';
+  }
+  
+  // Otherwise, use the same host as the frontend but on port 3000
+  return `http://${window.location.hostname}:3000/api/v1`;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Create axios instance
 export const apiClient = axios.create({

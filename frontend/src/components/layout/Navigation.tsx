@@ -3,7 +3,11 @@ import { NavLink } from 'react-router-dom';
 import { Home, Calendar, Users, UserCircle, Shield } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 
-export const Navigation: React.FC = () => {
+interface NavigationProps {
+  onNavigate?: () => void;
+}
+
+export const Navigation: React.FC<NavigationProps> = ({ onNavigate }) => {
   const { isAdmin } = useAuthStore();
 
   const navItems = [
@@ -25,6 +29,7 @@ export const Navigation: React.FC = () => {
             <li key={item.to}>
               <NavLink
                 to={item.to}
+                onClick={onNavigate}
                 className={({ isActive }) =>
                   `flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors ${
                     isActive

@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/environment';
-import { AuthenticatedRequest, JWTPayload } from '../types';
 import { createApiResponse } from '../utils';
+import { JWTPayload, AuthenticatedRequest } from '../types/auth';
 
 export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
   
-  if (!authHeader?.startsWith('Bearer ')) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     res.status(401).json(createApiResponse(false, undefined, undefined, {
       code: 'AUTH_TOKEN_MISSING',
       message: 'Authorization token is required',
@@ -16,12 +16,10 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
   }
 
   const token = authHeader.substring(7);
-  
+
   try {
     const decoded = jwt.verify(token, config.JWT_SECRET) as JWTPayload;
-    
-    (req as AuthenticatedRequest).user = decoded;
-    
+    req.user = decoded;
     next();
   } catch (error) {
     res.status(401).json(createApiResponse(false, undefined, undefined, {

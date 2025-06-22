@@ -12,9 +12,9 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction): v
       return;
     }
 
-    if (!req.user.is_admin) {
+    if (!req.user.isAdmin) {
       logger.warn('Non-admin user attempted to access admin route', {
-        userId: req.user.id,
+        userId: req.user.userId,
         email: req.user.email,
         route: req.path,
         method: req.method
@@ -32,7 +32,7 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction): v
   } catch (error) {
     logger.error('Admin middleware error', {
       error: (error as Error).message,
-      userId: req.user?.id
+      userId: req.user?.userId
     });
 
     res.status(500).json({

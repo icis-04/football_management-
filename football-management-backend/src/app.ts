@@ -45,6 +45,12 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
+    // In development, allow all origins
+    if (config.NODE_ENV === 'development') {
+      callback(null, true);
+      return;
+    }
+    
     const allowedOrigins = [
       config.FRONTEND_URL,
       'http://localhost:3000',
@@ -205,12 +211,16 @@ const startServer = async () => {
     scheduledJobService.initializeJobs();
     logger.info('Scheduled jobs initialized');
 
-    // Start server
-    const server = app.listen(config.PORT, () => {
-      logger.info(`🚀 Server running on port ${config.PORT}`);
+    // Start server - listen on all interfaces in development
+    const host = config.NODE_ENV === 'development' ? '0.0.0.0' : 'localhost';
+    const server = app.listen(config.PORT, host, () => {
+      logger.info(`🚀 Server running on ${host}:${config.PORT}`);
       logger.info(`📚 API Documentation: http://localhost:${config.PORT}/api-docs`);
       logger.info(`🏥 Health Check: http://localhost:${config.PORT}/health`);
       logger.info(`🌍 Environment: ${config.NODE_ENV}`);
+      if (host === '0.0.0.0') {
+        logger.info(`📱 Network access: http://<your-ip>:${config.PORT}`);
+      }
     });
 
     // Graceful shutdown

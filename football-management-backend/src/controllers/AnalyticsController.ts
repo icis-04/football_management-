@@ -131,7 +131,7 @@ export class AnalyticsController {
 
   async getPlayerStats(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const userId = req.user!.id;
+      const userId = req.user!.userId;
       const seasonYear = req.query.year ? parseInt(req.query.year as string) : new Date().getFullYear();
 
       const playerData = await this.analyticsService.getPlayerPerformanceData(seasonYear);
@@ -166,7 +166,7 @@ export class AnalyticsController {
       }));
     } catch (error) {
       logger.error('Failed to get player stats', {
-        userId: req.user?.id,
+        userId: req.user?.userId,
         error: (error as Error).message
       });
       res.status(500).json(createApiResponse(false, null, 'Failed to get player statistics'));

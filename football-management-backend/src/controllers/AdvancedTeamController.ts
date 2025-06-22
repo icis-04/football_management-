@@ -13,7 +13,7 @@ export class AdvancedTeamController {
 
   async adjustTeam(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const adminId = req.user!.id;
+      const adminId = req.user!.userId;
       const adjustment = req.body;
 
       await this.advancedTeamService.applyTeamAdjustment(adjustment, adminId);
@@ -21,7 +21,7 @@ export class AdvancedTeamController {
       res.json(createApiResponse(true, null, 'Team adjustment applied successfully'));
     } catch (error) {
       logger.error('Failed to apply team adjustment', {
-        adminId: req.user?.id,
+        adminId: req.user?.userId,
         adjustment: req.body,
         error: (error as Error).message
       });
@@ -31,7 +31,7 @@ export class AdvancedTeamController {
 
   async swapPlayers(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const adminId = req.user!.id;
+      const adminId = req.user!.userId;
       const { team1Id, player1Id, team2Id, player2Id } = req.body;
 
       await this.advancedTeamService.swapPlayers(team1Id, player1Id, team2Id, player2Id, adminId);
@@ -39,7 +39,7 @@ export class AdvancedTeamController {
       res.json(createApiResponse(true, null, 'Players swapped successfully'));
     } catch (error) {
       logger.error('Failed to swap players', {
-        adminId: req.user?.id,
+        adminId: req.user?.userId,
         swapData: req.body,
         error: (error as Error).message
       });
@@ -49,7 +49,7 @@ export class AdvancedTeamController {
 
   async saveAsTemplate(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const adminId = req.user!.id;
+      const adminId = req.user!.userId;
       const teamId = parseInt(req.params.teamId);
       const templateData = req.body;
 
@@ -58,7 +58,7 @@ export class AdvancedTeamController {
       res.json(createApiResponse(true, template, 'Team template created successfully'));
     } catch (error) {
       logger.error('Failed to save team template', {
-        adminId: req.user?.id,
+        adminId: req.user?.userId,
         teamId: req.params.teamId,
         templateData: req.body,
         error: (error as Error).message
@@ -69,14 +69,14 @@ export class AdvancedTeamController {
 
   async getTemplates(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const adminId = req.user!.id;
+      const adminId = req.user!.userId;
 
       const templates = await this.advancedTeamService.getTeamTemplates(adminId);
 
       res.json(createApiResponse(true, templates));
     } catch (error) {
       logger.error('Failed to get team templates', {
-        adminId: req.user?.id,
+        adminId: req.user?.userId,
         error: (error as Error).message
       });
       res.status(500).json(createApiResponse(false, null, 'Failed to get team templates'));
@@ -85,7 +85,7 @@ export class AdvancedTeamController {
 
   async applyTemplate(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const adminId = req.user!.id;
+      const adminId = req.user!.userId;
       const templateId = parseInt(req.params.templateId);
       const { matchDate } = req.body;
 
@@ -98,7 +98,7 @@ export class AdvancedTeamController {
       res.json(createApiResponse(true, teams, 'Team template applied successfully'));
     } catch (error) {
       logger.error('Failed to apply team template', {
-        adminId: req.user?.id,
+        adminId: req.user?.userId,
         templateId: req.params.templateId,
         matchDate: req.body.matchDate,
         error: (error as Error).message
@@ -141,7 +141,7 @@ export class AdvancedTeamController {
 
   async bulkTeamOperations(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const adminId = req.user!.id;
+      const adminId = req.user!.userId;
       const { operations } = req.body;
 
       const results = [];
@@ -171,7 +171,7 @@ export class AdvancedTeamController {
       }, `Bulk operations completed: ${successCount} successful, ${failureCount} failed`));
     } catch (error) {
       logger.error('Failed to execute bulk team operations', {
-        adminId: req.user?.id,
+        adminId: req.user?.userId,
         operations: req.body.operations,
         error: (error as Error).message
       });
@@ -181,7 +181,7 @@ export class AdvancedTeamController {
 
   async optimizeTeams(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const adminId = req.user!.id;
+      const adminId = req.user!.userId;
       const { matchDate, optimizationCriteria } = req.body;
 
       // This would implement advanced team optimization algorithms
@@ -194,7 +194,7 @@ export class AdvancedTeamController {
       }, 'Team optimization analysis completed'));
     } catch (error) {
       logger.error('Failed to optimize teams', {
-        adminId: req.user?.id,
+        adminId: req.user?.userId,
         matchDate: req.body.matchDate,
         error: (error as Error).message
       });

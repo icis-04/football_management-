@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="#2563eb"/>
+  
+  <!-- Soccer ball -->
+  <circle cx="50" cy="50" r="40" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  
+  <!-- Pentagon pattern -->
+  <g fill="#1f2937">
+    <!-- Center pentagon -->
+    <path d="M50 25 L62 35 L57 48 L43 48 L38 35 Z"/>
+    
+    <!-- Side pentagons -->
+    <path d="M38 35 L43 48 L33 53 L23 43 L23 30 Z"/>
+    <path d="M62 35 L67 48 L77 43 L77 30 L67 25 Z"/>
+    <path d="M43 48 L57 48 L62 61 L50 66 L38 61 Z"/>
+    <path d="M33 53 L38 61 L33 71 L23 66 L18 56 Z"/>
+    <path d="M67 48 L72 56 L77 66 L67 71 L62 61 Z"/>
+    
+    <!-- Bottom pentagon -->
+    <path d="M38 61 L50 66 L62 61 L57 74 L43 74 Z"/>
+  </g>
+</svg> 

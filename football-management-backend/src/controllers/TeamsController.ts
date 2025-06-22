@@ -35,7 +35,7 @@ export class TeamsController {
     } catch (error) {
       logger.error('Get current week teams failed', {
         error: (error as Error).message,
-        userId: req.user?.id,
+        userId: req.user?.userId,
       });
       res.status(500).json(
         createApiResponse(false, undefined, undefined, {
@@ -86,7 +86,7 @@ export class TeamsController {
       logger.error('Get teams for match failed', {
         error: (error as Error).message,
         date: req.params['date'],
-        userId: req.user?.id,
+        userId: req.user?.userId,
       });
       res.status(500).json(
         createApiResponse(false, undefined, undefined, {
@@ -109,7 +109,7 @@ export class TeamsController {
     } catch (error) {
       logger.error('Get my team history failed', {
         error: (error as Error).message,
-        userId: req.user?.id,
+        userId: req.user?.userId,
       });
       res.status(500).json(
         createApiResponse(false, undefined, undefined, {

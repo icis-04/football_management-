@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { format, isAfter, startOfDay, isSameDay } from 'date-fns';
+import { format, isAfter } from 'date-fns';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 
 import { Skeleton, SkeletonGroup } from '../components/common/Skeleton';
 import { useAuthStore } from '../stores/authStore';
 import { CalendarIcon, UserGroupIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { availabilityApi } from '../api/availability';
+import { teamsApi } from '../api/teams';
 
 interface UpcomingMatch {
   date: Date;
@@ -54,50 +56,97 @@ export const DashboardPage: React.FC = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      // TODO: Replace with actual API calls
       
-      // Mock data for now
-      const today = new Date();
-      const nextMonday = getNextWeekday(today, 1);
-      const nextWednesday = getNextWeekday(today, 3);
-      
-      setUpcomingMatches([
-        {
-          date: nextMonday,
-          dayOfWeek: 'Monday',
-          availabilityDeadline: new Date(nextMonday.getTime() - 2 * 24 * 60 * 60 * 1000), // 2 days before
-          availabilityStatus: 'not_submitted',
-          availablePlayersCount: 12,
-        },
-        {
-          date: nextWednesday,
-          dayOfWeek: 'Wednesday',
-          availabilityDeadline: new Date(nextWednesday.getTime() - 1 * 24 * 60 * 60 * 1000), // 1 day before
-          availabilityStatus: 'available',
-          availablePlayersCount: 18,
-        },
+      // Fetch upcoming matches and my availability
+      const [matches, myAvailability] = await Promise.all([
+        availabilityApi.getUpcomingMatches(),
+        availabilityApi.getMyAvailability()
       ]);
+      
+      // Fetch availability count for each match
+      const matchesWithCounts = await Promise.all(
+        matches.slice(0, 2).map(async (match) => { // Only show first 2 matches
+          const dateOnly = match.date.split('T')[0];
+          
+          // Find user's availability for this match
+          const userAvailability = myAvailability.find(a => a.matchDate === dateOnly);
+          
+          // Get availability count
+          let availablePlayersCount = 0;
+          try {
+            const matchAvailability = await availabilityApi.getMatchAvailability(dateOnly);
+            availablePlayersCount = matchAvailability.totalAvailable;
+          } catch (error) {
+            console.error(`Error fetching availability for ${dateOnly}:`, error);
+          }
+          
+          return {
+            date: new Date(match.date),
+            dayOfWeek: match.dayOfWeek,
+            availabilityDeadline: new Date(match.availabilityDeadline),
+            availabilityStatus: userAvailability 
+              ? (userAvailability.isAvailable ? 'available' : 'not_available') as 'available' | 'not_available' | 'not_submitted'
+              : 'not_submitted' as 'available' | 'not_available' | 'not_submitted',
+            availablePlayersCount
+          };
+        })
+      );
+      
+      setUpcomingMatches(matchesWithCounts);
 
-      // Check if teams are published (after 12 PM on match day)
-      const now = new Date();
-      if (isSameDay(now, nextMonday) && now.getHours() >= 12) {
-        setCurrentTeam({
-          matchDate: nextMonday,
-          teamNumber: 1,
-          teamName: 'Team 1',
-          teammates: [
-            { id: 1, name: 'John Doe', position: 'midfielder' },
-            { id: 2, name: 'Jane Smith', position: 'defender' },
-            { id: 3, name: 'Mike Johnson', position: 'forward' },
-          ],
-          isSubstitute: false,
-        });
+      // Check for current teams
+      try {
+        const currentTeamData = await teamsApi.getCurrentTeams();
+        if (currentTeamData) {
+          // Find user's team
+          const userTeam = currentTeamData.teams.find(team => 
+            team.players.some(p => p.id === user?.id) || 
+            team.substitutes.some(p => p.id === user?.id)
+          );
+          
+          if (userTeam) {
+            const isSubstitute = userTeam.substitutes.some(p => p.id === user?.id);
+            const teammates = isSubstitute 
+              ? [...userTeam.substitutes.filter(p => p.id !== user?.id)]
+              : [...userTeam.players.filter(p => p.id !== user?.id)];
+            
+            setCurrentTeam({
+              matchDate: new Date(currentTeamData.matchDate),
+              teamNumber: userTeam.teamNumber,
+              teamName: userTeam.teamName,
+              teammates: teammates.map(p => ({
+                id: p.id,
+                name: p.name,
+                position: p.position || 'any',
+                profilePicUrl: p.profilePicUrl
+              })),
+              isSubstitute
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching current teams:', error);
       }
 
+      // Calculate quick stats
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const gamesThisMonth = myAvailability.filter(a => {
+        const matchDate = new Date(a.matchDate);
+        return matchDate.getMonth() === currentMonth && a.isAvailable;
+      }).length;
+      
+      const upcomingGames = matches.length;
+      const totalResponded = myAvailability.length;
+      const totalAvailable = myAvailability.filter(a => a.isAvailable).length;
+      const availabilityRate = totalResponded > 0 
+        ? Math.round((totalAvailable / totalResponded) * 100) 
+        : 0;
+
       setQuickStats({
-        gamesThisMonth: 5,
-        upcomingGames: 2,
-        availabilityRate: 85,
+        gamesThisMonth,
+        upcomingGames,
+        availabilityRate,
       });
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -106,13 +155,7 @@ export const DashboardPage: React.FC = () => {
     }
   };
 
-  const getNextWeekday = (date: Date, dayOfWeek: number): Date => {
-    const result = new Date(date);
-    const currentDay = result.getDay();
-    const daysUntilNext = (dayOfWeek - currentDay + 7) % 7 || 7;
-    result.setDate(result.getDate() + daysUntilNext);
-    return startOfDay(result);
-  };
+
 
   const getAvailabilityStatusIcon = (status?: string) => {
     switch (status) {
@@ -246,7 +289,7 @@ export const DashboardPage: React.FC = () => {
       )}
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <Card>
           <div className="p-6">
             <div className="flex items-center justify-between">

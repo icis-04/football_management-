@@ -1,8 +1,7 @@
 import { Request } from 'express';
-import { User } from '../models/User';
 
 export interface JWTPayload {
-  id: number;
+  userId: number;
   email: string;
   isAdmin: boolean;
   iat?: number;
@@ -10,5 +9,5 @@ export interface JWTPayload {
 }
 
 export interface AuthenticatedRequest extends Request {
-  user?: User;
+  user?: JWTPayload;
 } 

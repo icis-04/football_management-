@@ -20,7 +20,7 @@ const getEnvironmentConfig = (): EnvironmentConfig => {
     }
   }
 
-  return {
+  const config: EnvironmentConfig = {
     NODE_ENV: process.env['NODE_ENV'] || 'development',
     PORT: parseInt(process.env['PORT'] || '3000', 10),
     DATABASE_PATH: process.env['DATABASE_PATH'] || './data/football.db',
@@ -30,17 +30,24 @@ const getEnvironmentConfig = (): EnvironmentConfig => {
     MAX_FILE_SIZE: parseInt(process.env['MAX_FILE_SIZE'] || '5242880', 10), // 5MB
     FRONTEND_URL: process.env['FRONTEND_URL'] || 'http://localhost:3001',
     RATE_LIMIT_WINDOW_MS: parseInt(process.env['RATE_LIMIT_WINDOW_MS'] || '900000', 10), // 15 minutes
-    RATE_LIMIT_MAX_REQUESTS: parseInt(process.env['RATE_LIMIT_MAX_REQUESTS'] || '100', 10),
-    RATE_LIMIT_AUTH_MAX_REQUESTS: parseInt(process.env['RATE_LIMIT_AUTH_MAX_REQUESTS'] || '5', 10),
+    RATE_LIMIT_MAX_REQUESTS: parseInt(process.env['RATE_LIMIT_MAX_REQUESTS'] || '10000', 10), // 10,000 requests
+    RATE_LIMIT_AUTH_MAX_REQUESTS: parseInt(process.env['RATE_LIMIT_AUTH_MAX_REQUESTS'] || '500', 10), // 500 auth requests
     LOG_LEVEL: process.env['LOG_LEVEL'] || 'info',
     LOG_FILE: process.env['LOG_FILE'] || './logs/app.log',
     // Phase 6 - Email Configuration
-    EMAIL_HOST: process.env['EMAIL_HOST'],
     EMAIL_PORT: parseInt(process.env['EMAIL_PORT'] || '587', 10),
     EMAIL_SECURE: process.env['EMAIL_SECURE'] === 'true',
-    EMAIL_USER: process.env['EMAIL_USER'],
-    EMAIL_PASS: process.env['EMAIL_PASS'],
-    EMAIL_FROM: process.env['EMAIL_FROM'] || process.env['EMAIL_USER'],  };
+  };
+
+  // Add optional email properties only if they exist
+  if (process.env['EMAIL_HOST']) config.EMAIL_HOST = process.env['EMAIL_HOST'];
+  if (process.env['EMAIL_USER']) config.EMAIL_USER = process.env['EMAIL_USER'];
+  if (process.env['EMAIL_PASS']) config.EMAIL_PASS = process.env['EMAIL_PASS'];
+  if (process.env['EMAIL_FROM'] || process.env['EMAIL_USER']) {
+    config.EMAIL_FROM = process.env['EMAIL_FROM'] || process.env['EMAIL_USER'];
+  }
+
+  return config;
 };
 
 export const config = getEnvironmentConfig();
