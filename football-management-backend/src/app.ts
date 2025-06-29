@@ -3,12 +3,13 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
+import path from 'path';
 import { config } from './config/environment';
 import { initializeDatabase } from './config/database';
 import { logger } from './config/logger';
 import { errorHandler } from './middlewares/errorHandler';
 import { rateLimiter } from './middlewares/rateLimiter';
-import { serveUploads } from './middlewares/upload';
+
 import { ScheduledJobService } from './services/ScheduledJobService';
 import specs from './config/swagger';
 
@@ -96,7 +97,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
 }));
 
 // Serve uploaded files
-app.use('/uploads/:filename', serveUploads);
+// This serves the entire uploads directory statically
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Health check endpoint
 /**

@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { UserService } from '../services/UserService';
 import { AuthenticatedRequest } from '../types/auth';
-import { createApiResponse } from '../utils';
+import { createApiResponse, transformUserWithFullUrls } from '../utils';
 import { logger } from '../config/logger';
 import multer from 'multer';
 import sharp from 'sharp';
@@ -48,7 +48,7 @@ export class UserController {
         return;
       }
 
-      res.json(createApiResponse(true, { user }));
+      res.json(createApiResponse(true, { user: transformUserWithFullUrls(user, req) }));
     } catch (error) {
       logger.error('Get user profile failed', { error: (error as Error).message, userId: req.user?.userId });
       res.status(500).json(
@@ -70,7 +70,7 @@ export class UserController {
         preferred_position: preferredPosition,
       });
 
-      res.json(createApiResponse(true, { user: updatedUser }, 'Profile updated successfully'));
+      res.json(createApiResponse(true, { user: transformUserWithFullUrls(updatedUser, req) }, 'Profile updated successfully'));
     } catch (error) {
       if ((error as Error).message === 'USER_NOT_FOUND') {
         res.status(404).json(
@@ -124,7 +124,13 @@ export class UserController {
       const avatarUrl = `/uploads/avatars/${filename}`;
       const updatedUser = await this.userService.updateProfilePicture(userId, avatarUrl);
 
-      res.json(createApiResponse(true, { user: updatedUser }, 'Avatar uploaded successfully'));
+      // Return full URL for the frontend
+      const fullUrl = `${req.protocol}://${req.get('host')}${avatarUrl}`;
+
+      res.json(createApiResponse(true, { 
+        user: transformUserWithFullUrls(updatedUser, req),
+        profilePicUrl: fullUrl 
+      }, 'Avatar uploaded successfully'));
     } catch (error) {
       if ((error as Error).message === 'USER_NOT_FOUND') {
         res.status(404).json(
@@ -178,7 +184,7 @@ export class UserController {
       // Update user profile to remove avatar URL
       const updatedUser = await this.userService.removeProfilePicture(userId);
 
-      res.json(createApiResponse(true, { user: updatedUser }, 'Avatar removed successfully'));
+      res.json(createApiResponse(true, { user: transformUserWithFullUrls(updatedUser, req) }, 'Avatar removed successfully'));
     } catch (error) {
       if ((error as Error).message === 'USER_NOT_FOUND') {
         res.status(404).json(
@@ -200,10 +206,11 @@ export class UserController {
     }
   };
 
-  getPlayers = async (_req: AuthenticatedRequest, res: Response): Promise<void> => {
+  getPlayers = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const players = await this.userService.getAllActivePlayers();
-      res.json(createApiResponse(true, { players }));
+      const transformedPlayers = players.map(player => transformUserWithFullUrls(player, req));
+      res.json(createApiResponse(true, { players: transformedPlayers }));
     } catch (error) {
       logger.error('Get players failed', { error: (error as Error).message });
       res.status(500).json(

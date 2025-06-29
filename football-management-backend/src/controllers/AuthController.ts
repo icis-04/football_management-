@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/AuthService';
 import { AuthenticatedRequest } from '../types';
-import { createApiResponse } from '../utils';
+import { createApiResponse, transformUserWithFullUrls } from '../utils';
 import { logger } from '../config/logger';
 
 export class AuthController {
@@ -17,7 +17,7 @@ export class AuthController {
       const result = await this.authService.signup(email, password, name, preferredPosition);
 
       res.status(201).json(createApiResponse(true, {
-        user: result.user,
+        user: transformUserWithFullUrls(result.user, req),
         tokens: result.tokens,
       }, 'User registered successfully'));
     } catch (error) {
@@ -53,7 +53,7 @@ export class AuthController {
       const result = await this.authService.login(email, password);
 
       res.json(createApiResponse(true, {
-        user: result.user,
+        user: transformUserWithFullUrls(result.user, req),
         tokens: result.tokens,
       }, 'Login successful'));
     } catch (error) {
@@ -120,7 +120,7 @@ export class AuthController {
         return;
       }
 
-      res.json(createApiResponse(true, { user }, 'Profile retrieved successfully'));
+      res.json(createApiResponse(true, { user: transformUserWithFullUrls(user, req) }, 'Profile retrieved successfully'));
     } catch (error) {
       logger.error('Get profile error', { error: (error as Error).message });
       res.status(500).json(createApiResponse(false, undefined, undefined, {
@@ -140,7 +140,7 @@ export class AuthController {
         preferredPosition,
       });
 
-      res.json(createApiResponse(true, { user: updatedUser }, 'Profile updated successfully'));
+      res.json(createApiResponse(true, { user: transformUserWithFullUrls(updatedUser, req) }, 'Profile updated successfully'));
     } catch (error) {
       const errorMessage = (error as Error).message;
 

@@ -242,4 +242,37 @@ export const createErrorResponse = (
       timestamp: new Date().toISOString()
     }
   };
+};
+
+/**
+ * Convert a relative profile picture URL to a full URL
+ */
+export const getFullProfilePicUrl = (relativePath: string | null | undefined, req?: any): string | null => {
+  if (!relativePath) return null;
+  
+  // If it's already a full URL, return as is
+  if (relativePath.startsWith('http://') || relativePath.startsWith('https://')) {
+    return relativePath;
+  }
+  
+  // If we have a request object, use it to build the URL
+  if (req && req.protocol && req.get) {
+    return `${req.protocol}://${req.get('host')}${relativePath}`;
+  }
+  
+  // Otherwise, use environment configuration
+  const baseUrl = process.env['BACKEND_URL'] || `http://localhost:${process.env['PORT'] || 3000}`;
+  return `${baseUrl}${relativePath}`;
+};
+
+/**
+ * Transform user object to include full profile picture URL
+ */
+export const transformUserWithFullUrls = (user: any, req?: any): any => {
+  if (!user) return user;
+  
+  return {
+    ...user,
+    profile_pic_url: getFullProfilePicUrl(user.profile_pic_url, req),
+  };
 }; 
