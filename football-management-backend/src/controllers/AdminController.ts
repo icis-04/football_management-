@@ -32,11 +32,11 @@ export class AdminController {
       });
 
       const message = (error as Error).message;
-      if (message === 'Email already in allowed list') {
+      if (message === 'EMAIL_ALREADY_EXISTS') {
         res.status(409).json({
           success: false,
           error: 'EMAIL_ALREADY_ALLOWED',
-          message
+          message: 'Email already in allowed list'
         });
       } else {
         res.status(500).json({
@@ -104,17 +104,17 @@ export class AdminController {
       });
 
       const message = (error as Error).message;
-      if (message === 'Allowed email not found') {
+      if (message === 'EMAIL_NOT_FOUND') {
         res.status(404).json({
           success: false,
           error: 'EMAIL_NOT_FOUND',
-          message
+          message: 'Allowed email not found'
         });
-      } else if (message === 'Cannot remove email that has been used for registration') {
+      } else if (message === 'EMAIL_ALREADY_USED') {
         res.status(409).json({
           success: false,
           error: 'EMAIL_ALREADY_USED',
-          message
+          message: 'Cannot remove email that has been used for registration'
         });
       } else {
         res.status(500).json({
@@ -239,17 +239,17 @@ export class AdminController {
       });
 
       const message = (error as Error).message;
-      if (message === 'User not found') {
+      if (message === 'USER_NOT_FOUND') {
         res.status(404).json({
           success: false,
           error: 'USER_NOT_FOUND',
-          message
+          message: 'User not found'
         });
-      } else if (message === 'Cannot deactivate admin user') {
+      } else if (message === 'CANNOT_DEACTIVATE_ADMIN') {
         res.status(409).json({
           success: false,
           error: 'CANNOT_DEACTIVATE_ADMIN',
-          message
+          message: 'Cannot deactivate admin user'
         });
       } else {
         res.status(500).json({
@@ -292,7 +292,6 @@ export class AdminController {
   getAuditLog = async (req: Request, res: Response): Promise<void> => {
     try {
       const limit = parseInt(req.query['limit'] as string) || 50;
-      const offset = parseInt(req.query['offset'] as string) || 0;
 
       if (limit > 100) {
         res.status(400).json({
@@ -303,7 +302,7 @@ export class AdminController {
         return;
       }
 
-      const result = await this.adminService.getAuditLog(limit);
+      const result = await this.adminService.getAuditLogs(limit);
 
       res.json({
         success: true,

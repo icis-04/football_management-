@@ -4,8 +4,9 @@ import type { User, Position } from '../types';
 export interface AllowedEmail {
   id: number;
   email: string;
-  addedBy: string;
-  createdAt: string;
+  added_by_admin_id: number;
+  used: boolean;
+  created_at: string;
 }
 
 export interface AdminStats {
@@ -57,32 +58,31 @@ export const adminApi = {
    * Get list of all users (admin only)
    */
   getUsers: async (): Promise<UserWithStats[]> => {
-    const response = await apiClient.get<{ success: boolean; data: { users: BackendUser[] } }>('/admin/users');
-    return response.data.data.users.map(transformUser);
+    const response = await apiClient.get<{ success: boolean; data: BackendUser[] }>('/admin/users');
+    return response.data.data.map(transformUser);
   },
 
   /**
    * Update user status (admin only)
    */
-  updateUserStatus: async (userId: number, isActive: boolean): Promise<User> => {
-    const response = await apiClient.patch<{ success: boolean; data: { user: BackendUser } }>(`/admin/users/${userId}/status`, { isActive });
-    return transformUser(response.data.data.user);
+  updateUserStatus: async (userId: number, isActive: boolean): Promise<void> => {
+    await apiClient.put(`/admin/users/${userId}/status`, { isActive });
   },
 
   /**
    * Get allowed emails list (admin only)
    */
   getAllowedEmails: async (): Promise<AllowedEmail[]> => {
-    const response = await apiClient.get<{ success: boolean; data: { emails: AllowedEmail[] } }>('/admin/allowed-emails');
-    return response.data.data.emails || [];
+    const response = await apiClient.get<{ success: boolean; data: AllowedEmail[] }>('/admin/allowed-emails');
+    return response.data.data || [];
   },
 
   /**
    * Add allowed email (admin only)
    */
   addAllowedEmail: async (email: string): Promise<AllowedEmail> => {
-    const response = await apiClient.post<{ success: boolean; data: { email: AllowedEmail } }>('/admin/allowed-emails', { email });
-    return response.data.data.email;
+    const response = await apiClient.post<{ success: boolean; data: AllowedEmail }>('/admin/allowed-emails', { email });
+    return response.data.data;
   },
 
   /**

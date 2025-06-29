@@ -12,7 +12,8 @@ import { DashboardPage } from './pages/DashboardPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { AvailabilityPage } from './pages/AvailabilityPage';
 import { TeamsPage } from './pages/TeamsPage';
-import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { AdminLayout } from './pages/admin/AdminLayout';
+import { EmailManagement, UserManagement, TeamManagement, Analytics } from './pages/admin/AdminDashboard';
 
 // Layout
 import { Layout } from './components/layout/Layout';
@@ -56,15 +57,21 @@ function App() {
             <Route path="availability" element={<AvailabilityPage />} />
             <Route path="teams" element={<TeamsPage />} />
             
-            {/* Admin routes */}
+            {/* Admin routes with proper nesting */}
             <Route
-              path="admin/*"
+              path="admin"
               element={
                 <ProtectedRoute requireAdmin>
-                  <AdminDashboard />
+                  <AdminLayout />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route index element={<Navigate to="/admin/emails" replace />} />
+              <Route path="emails" element={<EmailManagement />} />
+              <Route path="users" element={<UserManagement />} />
+              <Route path="teams" element={<TeamManagement />} />
+              <Route path="analytics" element={<Analytics />} />
+            </Route>
           </Route>
         </Routes>
         <ToastContainer />

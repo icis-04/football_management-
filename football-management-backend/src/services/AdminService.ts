@@ -29,6 +29,11 @@ export class AdminService {
         throw new Error('USER_NOT_FOUND');
       }
 
+      // Prevent deactivating admin users
+      if (!isActive && user.is_admin) {
+        throw new Error('CANNOT_DEACTIVATE_ADMIN');
+      }
+
       user.is_active = isActive;
       await this.userRepository.save(user);
 
@@ -124,9 +129,9 @@ export class AdminService {
       const log = this.auditLogRepository.create({
         admin_id: adminId,
         action,
-        target_type: targetType,
-        target_id: targetId,
-        details
+        target_type: targetType || null,
+        target_id: targetId || null,
+        details: details || null
       });
       await this.auditLogRepository.save(log);
     } catch (error) {
@@ -147,5 +152,48 @@ export class AdminService {
       logger.error('Failed to get audit logs:', error);
       throw error;
     }
+  }
+
+  async bulkAddAllowedEmails(emails: string[], adminId: number) {
+    const result = {
+      added: [] as AllowedEmail[],
+      skipped: [] as string[],
+      errors: [] as { email: string; error: string }[]
+    };
+
+    for (const email of emails) {
+      try {
+        const existing = await this.allowedEmailRepository.findOne({ where: { email } });
+        if (existing) {
+          result.skipped.push(email);
+          continue;
+        }
+
+        const allowedEmail = this.allowedEmailRepository.create({
+          email,
+          added_by_admin_id: adminId,
+          used: false
+        });
+
+        await this.allowedEmailRepository.save(allowedEmail);
+        await this.createAuditLog(adminId, 'ADD_ALLOWED_EMAIL', 'allowed_email', allowedEmail.id, email);
+        result.added.push(allowedEmail);
+      } catch (error) {
+        result.errors.push({ email, error: (error as Error).message });
+      }
+    }
+
+    return result;
+  }
+
+  async getAvailabilityAnalytics() {
+    // TODO: Implement availability analytics
+    // For now, return placeholder data
+    return {
+      totalPlayers: 0,
+      activePlayers: 0,
+      averageAvailability: 0,
+      weeklyTrends: []
+    };
   }
 } 
