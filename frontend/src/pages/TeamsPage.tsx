@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { format, startOfDay } from 'date-fns';
+import { format } from 'date-fns';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Spinner } from '../components/common/Spinner';
@@ -93,16 +93,16 @@ export const TeamsPage: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <div className={`w-4 h-4 rounded-full ${getTeamColor(team.teamNumber)}`} />
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {team.teamName}
               </h3>
               {isUserTeam && (
-                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full">
                   Your Team
                 </span>
               )}
             </div>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
               {team.players.length} players
             </span>
           </div>
@@ -110,24 +110,24 @@ export const TeamsPage: React.FC = () => {
           {/* Players List */}
           <div className="space-y-3">
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Starting Players</h4>
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Starting Players</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {team.players.map((player: any) => (
                   <div
                     key={player.id}
                     className={`flex items-center space-x-3 p-2 rounded-lg ${
-                      player.id === user?.id ? 'bg-blue-50' : 'hover:bg-gray-50'
+                      player.id === user?.id ? 'bg-blue-50 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                   >
-                    <div className="w-8 h-8 bg-gray-300 rounded-full flex-shrink-0" />
+                    <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full flex-shrink-0" />
                     <div className="min-w-0 flex-1">
                       <p className={`text-sm font-medium ${
-                        player.id === user?.id ? 'text-blue-700' : 'text-gray-900'
+                        player.id === user?.id ? 'text-blue-700 dark:text-blue-300' : 'text-gray-900 dark:text-white'
                       } truncate`}>
                         {player.name}
                         {player.id === user?.id && ' (You)'}
                       </p>
-                      <p className="text-xs text-gray-500 capitalize">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
                         {player.assignedPosition || player.position}
                         {player.position === 'goalkeeper' && ' 🥅'}
                       </p>
@@ -139,25 +139,25 @@ export const TeamsPage: React.FC = () => {
 
             {/* Substitutes */}
             {team.substitutes.length > 0 && (
-              <div className="mt-4 pt-4 border-t">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Substitutes</h4>
+              <div className="mt-4 pt-4 border-t dark:border-gray-700">
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Substitutes</h4>
                 <div className="space-y-2">
                   {team.substitutes.map((player: any) => (
                     <div
                       key={player.id}
                       className={`flex items-center space-x-3 p-2 rounded-lg ${
-                        player.id === user?.id ? 'bg-yellow-50' : 'bg-gray-50'
+                        player.id === user?.id ? 'bg-yellow-50 dark:bg-yellow-900/30' : 'bg-gray-50 dark:bg-gray-700/50'
                       }`}
                     >
-                      <div className="w-8 h-8 bg-gray-300 rounded-full flex-shrink-0" />
+                      <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full flex-shrink-0" />
                       <div className="min-w-0 flex-1">
                         <p className={`text-sm font-medium ${
-                          player.id === user?.id ? 'text-yellow-700' : 'text-gray-700'
+                          player.id === user?.id ? 'text-yellow-700 dark:text-yellow-300' : 'text-gray-700 dark:text-gray-300'
                         } truncate`}>
                           {player.name}
                           {player.id === user?.id && ' (You)'}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           Substitute
                           {player.substituteForPosition === 'goalkeeper' && ' (Goalkeeper)'}
                         </p>
@@ -197,23 +197,23 @@ export const TeamsPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h1 className="text-2xl font-bold text-gray-900">Teams</h1>
-        <p className="text-gray-600 mt-2">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Teams</h1>
+        <p className="text-gray-600 dark:text-gray-300 mt-2">
           View current teams and your match history
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-lg shadow-sm">
-        <div className="border-b">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+        <div className="border-b dark:border-gray-700">
           <nav className="flex -mb-px">
             <button
               onClick={() => setActiveTab('current')}
               className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === 'current'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
               Current Teams
@@ -222,8 +222,8 @@ export const TeamsPage: React.FC = () => {
               onClick={() => setActiveTab('history')}
               className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === 'history'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
               Match History
@@ -239,12 +239,12 @@ export const TeamsPage: React.FC = () => {
           {currentMatch && currentMatch.isPublished ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Teams for {format(new Date(currentMatch.matchDate), 'EEEE, MMMM d')}
                 </h2>
                 <div className="flex items-center space-x-4">
                   {currentMatch.publishedAt && (
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
                       Published at {format(new Date(currentMatch.publishedAt), 'h:mm a')}
                     </span>
                   )}
@@ -267,7 +267,7 @@ export const TeamsPage: React.FC = () => {
               {/* Third Team (if exists) */}
               {currentMatch.teams.length > 2 && (
                 <div className="mt-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                     Additional Team
                   </h3>
                   <div className="max-w-2xl">
@@ -279,8 +279,8 @@ export const TeamsPage: React.FC = () => {
           ) : (
             <Card>
               <div className="p-12 text-center">
-                <UserGroupIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">
+                <UserGroupIcon className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                <p className="text-gray-600 dark:text-gray-300">
                   No teams published yet. Teams will be published on match day at 12:00 PM.
                 </p>
               </div>
@@ -293,7 +293,7 @@ export const TeamsPage: React.FC = () => {
           <div className="space-y-4">
             {matchHistory.length > 0 ? (
               <>
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Your Recent Matches
                 </h2>
                 <div className="space-y-3">
@@ -302,20 +302,20 @@ export const TeamsPage: React.FC = () => {
                       <div className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-4">
-                            <CalendarIcon className="w-5 h-5 text-gray-400" />
+                            <CalendarIcon className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                             <div>
-                              <p className="font-medium text-gray-900">
+                              <p className="font-medium text-gray-900 dark:text-white">
                                 {format(new Date(match.matchDate), 'EEEE, MMMM d, yyyy')}
                               </p>
                               <div className="flex items-center space-x-3 mt-1">
                                 <span className={`text-sm font-medium ${getTeamTextColor(match.teamNumber)}`}>
                                   {match.teamName}
                                 </span>
-                                <span className="text-sm text-gray-500">
+                                <span className="text-sm text-gray-500 dark:text-gray-400">
                                   • {match.playersCount} players
                                 </span>
                                 {match.wasSubstitute && (
-                                  <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
+                                  <span className="text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 px-2 py-1 rounded-full">
                                     Substitute
                                   </span>
                                 )}
@@ -330,31 +330,31 @@ export const TeamsPage: React.FC = () => {
                 </div>
                 
                 {/* Stats Summary */}
-                <Card className="mt-6 bg-gray-50">
+                <Card className="mt-6 bg-gray-50 dark:bg-gray-700/50">
                   <div className="p-6">
-                    <h3 className="font-medium text-gray-900 mb-4 flex items-center space-x-2">
+                    <h3 className="font-medium text-gray-900 dark:text-white mb-4 flex items-center space-x-2">
                       <TrophyIcon className="w-5 h-5 text-yellow-500" />
                       <span>Your Stats</span>
                     </h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div>
-                        <p className="text-sm text-gray-600">Total Matches</p>
-                        <p className="text-2xl font-bold text-gray-900">{matchHistory.length}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">Total Matches</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{matchHistory.length}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">As Substitute</p>
-                        <p className="text-2xl font-bold text-gray-900">
+                        <p className="text-sm text-gray-600 dark:text-gray-300">As Substitute</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">
                           {matchHistory.filter(m => m.wasSubstitute).length}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Team Red</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">Team Red</p>
                         <p className="text-2xl font-bold text-red-600">
                           {matchHistory.filter(m => m.teamNumber === 1).length}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Team Blue</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">Team Blue</p>
                         <p className="text-2xl font-bold text-blue-600">
                           {matchHistory.filter(m => m.teamNumber === 2).length}
                         </p>
@@ -366,8 +366,8 @@ export const TeamsPage: React.FC = () => {
             ) : (
               <Card>
                 <div className="p-12 text-center">
-                  <CalendarIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No match history yet</p>
+                  <CalendarIcon className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                  <p className="text-gray-600 dark:text-gray-300">No match history yet</p>
                 </div>
               </Card>
             )}

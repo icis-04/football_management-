@@ -53,6 +53,14 @@ export const LoginPage: React.FC = () => {
     }
   };
 
+  const handleForgotPassword = () => {
+    showNotification({
+      type: 'info',
+      title: 'Password Reset',
+      message: 'Please contact your administrator to reset your password.',
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -97,12 +105,16 @@ export const LoginPage: React.FC = () => {
                   {...register('email')}
                   type="email"
                   autoComplete="email"
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
                   className="pl-10 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="you@example.com"
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-sm text-error">{errors.email.message}</p>
+                <p id="email-error" className="mt-1 text-sm text-error" role="alert">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -118,6 +130,8 @@ export const LoginPage: React.FC = () => {
                   {...register('password')}
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? 'password-error' : undefined}
                   className="pl-10 pr-10 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="••••••••"
                 />
@@ -134,7 +148,9 @@ export const LoginPage: React.FC = () => {
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-error">{errors.password.message}</p>
+                <p id="password-error" className="mt-1 text-sm text-error" role="alert">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
@@ -151,9 +167,13 @@ export const LoginPage: React.FC = () => {
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-primary hover:text-primary/80">
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="font-medium text-primary hover:text-primary/80"
+                >
                   Forgot password?
-                </a>
+                </button>
               </div>
             </div>
 

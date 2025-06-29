@@ -1,28 +1,61 @@
 {
-  "short_name": "Football Teams",
-  "name": "Football Team Management",
-  "description": "Organize football matches with automated team selection",
+  "name": "Football Team Manager",
+  "short_name": "Football Manager",
+  "description": "Manage your football team availability and formations",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#3b82f6",
+  "background_color": "#ffffff",
+  "orientation": "portrait",
+  "categories": ["sports", "productivity"],
   "icons": [
     {
-      "src": "football-icon.svg",
+      "src": "/football-icon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
-      "src": "logo192.png",
+      "src": "/logo192.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "sizes": "192x192"
+      "purpose": "any maskable"
     },
     {
-      "src": "logo512.png",
+      "src": "/logo512.png",
+      "sizes": "512x512",
       "type": "image/png",
-      "sizes": "512x512"
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#2563eb",
-  "background_color": "#ffffff",
-  "orientation": "portrait-primary",
-  "categories": ["sports", "productivity"]
+  "screenshots": [
+    {
+      "src": "/screenshot1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Dashboard view"
+    },
+    {
+      "src": "/screenshot2.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Availability management"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Submit Availability",
+      "short_name": "Availability",
+      "description": "Quickly submit your match availability",
+      "url": "/availability",
+      "icons": [{ "src": "/logo192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "View Teams",
+      "short_name": "Teams",
+      "description": "View current team formations",
+      "url": "/teams",
+      "icons": [{ "src": "/logo192.png", "sizes": "192x192" }]
+    }
+  ]
 } 

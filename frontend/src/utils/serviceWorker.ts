@@ -1,4 +1,10 @@
-// Service worker registration utilities
+// Service Worker registration and utilities
+
+interface Config {
+  onSuccess?: (registration: ServiceWorkerRegistration) => void;
+  onUpdate?: (registration: ServiceWorkerRegistration) => void;
+  onError?: (error: Error) => void;
+}
 
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
@@ -8,31 +14,27 @@ const isLocalhost = Boolean(
   )
 );
 
-type Config = {
-  onSuccess?: (registration: ServiceWorkerRegistration) => void;
-  onUpdate?: (registration: ServiceWorkerRegistration) => void;
-};
-
 export function register(config?: Config) {
   if ('serviceWorker' in navigator) {
     // The URL constructor is available in all browsers that support SW.
-    const publicUrl = new URL(window.location.href);
+    const publicUrl = new URL(import.meta.env.BASE_URL || '', window.location.href);
     if (publicUrl.origin !== window.location.origin) {
       // Our service worker won't work if PUBLIC_URL is on a different origin
       return;
     }
 
     window.addEventListener('load', () => {
-      const swUrl = `${import.meta.env.BASE_URL}service-worker.js`;
+      const swUrl = `${import.meta.env.BASE_URL || ''}service-worker.js`;
 
       if (isLocalhost) {
-        // This is running on localhost. Check if a service worker still exists or not.
+        // This is running on localhost. Let's check if a service worker still exists or not.
         checkValidServiceWorker(swUrl, config);
 
-        // Add some additional logging to localhost
+        // Add some additional logging to localhost, pointing developers to the
+        // service worker/PWA documentation.
         navigator.serviceWorker.ready.then(() => {
           console.log(
-            'This web app is being served cache-first by a service worker.'
+            'This web app is being served cache-first by a service worker. To learn more, visit https://cra.link/PWA'
           );
         });
       } else {
@@ -47,6 +49,11 @@ function registerValidSW(swUrl: string, config?: Config) {
   navigator.serviceWorker
     .register(swUrl)
     .then((registration) => {
+      // Check for updates every 5 minutes
+      setInterval(() => {
+        registration.update();
+      }, 5 * 60 * 1000);
+
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
         if (installingWorker == null) {
@@ -59,7 +66,7 @@ function registerValidSW(swUrl: string, config?: Config) {
               // but the previous service worker will still serve the older
               // content until all client tabs are closed.
               console.log(
-                'New content is available and will be used when all tabs are closed.'
+                'New content is available and will be used when all tabs for this page are closed.'
               );
 
               // Execute callback
@@ -81,6 +88,9 @@ function registerValidSW(swUrl: string, config?: Config) {
     })
     .catch((error) => {
       console.error('Error during service worker registration:', error);
+      if (config && config.onError) {
+        config.onError(error);
+      }
     });
 }
 
@@ -122,4 +132,82 @@ export function unregister() {
         console.error(error.message);
       });
   }
+}
+
+// PWA Install prompt handling
+let deferredPrompt: BeforeInstallPromptEvent | null = null;
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
+export function initializePWA() {
+  // Handle install prompt
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent Chrome 67 and earlier from automatically showing the prompt
+    e.preventDefault();
+    // Stash the event so it can be triggered later
+    deferredPrompt = e as BeforeInstallPromptEvent;
+    
+    // Update UI to notify the user they can add to home screen
+    const installButton = document.getElementById('pwa-install-button');
+    if (installButton) {
+      installButton.style.display = 'block';
+    }
+  });
+
+  // Handle successful installation
+  window.addEventListener('appinstalled', () => {
+    console.log('PWA was installed');
+    deferredPrompt = null;
+    
+    // Hide install button
+    const installButton = document.getElementById('pwa-install-button');
+    if (installButton) {
+      installButton.style.display = 'none';
+    }
+  });
+}
+
+export async function promptInstall(): Promise<boolean> {
+  if (!deferredPrompt) {
+    return false;
+  }
+
+  // Show the install prompt
+  deferredPrompt.prompt();
+  
+  // Wait for the user to respond to the prompt
+  const { outcome } = await deferredPrompt.userChoice;
+  
+  // Clear the deferred prompt
+  deferredPrompt = null;
+  
+  return outcome === 'accepted';
+}
+
+// Check if app is running as installed PWA
+export function isPWA(): boolean {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+         ((window.navigator as unknown as { standalone?: boolean }).standalone === true);
+}
+
+// Request notification permission
+export async function requestNotificationPermission(): Promise<boolean> {
+  if (!('Notification' in window)) {
+    console.log('This browser does not support notifications');
+    return false;
+  }
+
+  if (Notification.permission === 'granted') {
+    return true;
+  }
+
+  if (Notification.permission !== 'denied') {
+    const permission = await Notification.requestPermission();
+    return permission === 'granted';
+  }
+
+  return false;
 } 

@@ -20,6 +20,31 @@ const getApiBaseUrl = () => {
 
 const API_BASE_URL = getApiBaseUrl();
 
+// Get the base server URL (without /api/v1)
+export const getServerBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    // Remove /api/v1 from the end if present
+    return import.meta.env.VITE_API_URL.replace(/\/api\/v1$/, '');
+  }
+  
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:3000';
+  }
+  
+  return `http://${window.location.hostname}:3000`;
+};
+
+// Utility function to get full URL for uploaded files
+export const getUploadUrl = (path: string | null | undefined): string | null => {
+  if (!path) return null;
+  // If it's already a full URL, return as is
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
+  }
+  // Otherwise, prepend the server base URL
+  return `${getServerBaseUrl()}${path}`;
+};
+
 // Create axios instance
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,

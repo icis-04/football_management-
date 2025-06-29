@@ -23,15 +23,15 @@ export const Button: React.FC<ButtonProps> = ({
   
   const variantClasses = {
     primary: 'bg-primary text-white hover:bg-primary/90 focus:ring-primary',
-    secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500',
+    secondary: 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 focus:ring-gray-500',
     danger: 'bg-error text-white hover:bg-red-700 focus:ring-error',
-    ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
+    ghost: 'bg-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-gray-500',
   };
   
   const sizeClasses = {
-    sm: 'px-3 py-1.5 text-sm rounded-md',
-    md: 'px-4 py-2 text-base rounded-lg',
-    lg: 'px-6 py-3 text-lg rounded-lg',
+    sm: 'px-3 py-2 text-sm rounded-md min-h-[44px]',
+    md: 'px-4 py-2.5 text-base rounded-lg min-h-[44px]',
+    lg: 'px-6 py-3 text-lg rounded-lg min-h-[48px]',
   };
   
   const widthClass = fullWidth ? 'w-full' : '';

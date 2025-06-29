@@ -40,4 +40,34 @@
   input, textarea, select {
     font-size: 16px;
   }
+  
+  /* Focus indicators for better accessibility */
+  *:focus {
+    outline: none;
+  }
+  
+  *:focus-visible {
+    @apply ring-2 ring-primary ring-offset-2;
+  }
+  
+  /* Skip link styles */
+  .sr-only:focus {
+    @apply not-sr-only absolute top-4 left-4 z-50;
+  }
+  
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    * {
+      @apply border-opacity-100;
+    }
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 } 

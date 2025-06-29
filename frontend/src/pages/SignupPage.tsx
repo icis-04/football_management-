@@ -3,12 +3,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Mail, Lock, Eye, EyeOff, User, Shield, AlertCircle } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User, Shield, AlertCircle, HelpCircle } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
 import { authApi } from '../api/auth';
 import { Button } from '../components/common/Button';
 import { Card } from '../components/common/Card';
+import { PasswordStrengthIndicator } from '../components/common/PasswordStrengthIndicator';
 import type { Position } from '../types';
 
 const signupSchema = z.object({
@@ -54,6 +55,7 @@ export const SignupPage: React.FC = () => {
   });
 
   const email = watch('email');
+  const password = watch('password');
 
   useEffect(() => {
     const checkEmail = async () => {
@@ -137,6 +139,13 @@ export const SignupPage: React.FC = () => {
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
+                <button
+                  type="button"
+                  className="ml-1 inline-flex items-center"
+                  title="Only pre-approved emails can register. Contact your admin if you need access."
+                >
+                  <HelpCircle className="h-4 w-4 text-gray-400" />
+                </button>
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -241,6 +250,7 @@ export const SignupPage: React.FC = () => {
               {errors.password && (
                 <p className="mt-1 text-sm text-error">{errors.password.message}</p>
               )}
+              <PasswordStrengthIndicator password={password || ''} />
             </div>
 
             <div>

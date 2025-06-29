@@ -4,14 +4,17 @@ import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import { Spinner } from '../components/common/Spinner';
+import { SkillLevelSelector, type SkillLevel } from '../components/profile/SkillLevelSelector';
 import { useAuthStore } from '../stores/authStore';
 import { UserCircleIcon, CameraIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { usersApi } from '../api/users';
 import type { Position } from '../types';
+import { useOptimisticUpdate } from '../hooks/useOptimisticUpdate';
 
 interface ProfileFormData {
   name: string;
   preferredPosition: Position;
+  skillLevel: SkillLevel;
 }
 
 const POSITIONS = [
@@ -31,10 +34,52 @@ export const ProfilePage: React.FC = () => {
   const [formData, setFormData] = useState<ProfileFormData>({
     name: user?.name || '',
     preferredPosition: user?.preferredPosition || 'any',
+    skillLevel: 3, // Default to intermediate
   });
   const [isEditing, setIsEditing] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  const { executeUpdate: executeProfileUpdate } = useOptimisticUpdate(
+    async (data: { name: string; preferredPosition: string }) => {
+      return await usersApi.updateMe(data);
+    },
+    {
+      onSuccess: () => {
+        setIsEditing(false);
+        setSuccessMessage('Profile updated successfully!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      },
+      rollbackMessage: 'Failed to update profile. Your changes have been reverted.',
+    }
+  );
+
+  const { executeUpdate: executeAvatarUpload } = useOptimisticUpdate(
+    async (file: File) => {
+      return await usersApi.uploadAvatar(file);
+    },
+    {
+      onSuccess: () => {
+        setSuccessMessage('Profile picture updated!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      },
+      rollbackMessage: 'Failed to upload profile picture.',
+    }
+  );
+
+  const { executeUpdate: executeAvatarRemove } = useOptimisticUpdate(
+    async () => {
+      await usersApi.removeAvatar();
+      return { profilePicUrl: undefined };
+    },
+    {
+      onSuccess: () => {
+        setSuccessMessage('Profile picture removed!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      },
+      rollbackMessage: 'Failed to remove profile picture.',
+    }
+  );
 
   useEffect(() => {
     // Check if redirected from ProfileCompletionCheck
@@ -55,24 +100,33 @@ export const ProfilePage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
+    
     try {
-      setLoading(true);
-      setError(null);
-      
-      // Update profile via API
-      const updatedUser = await usersApi.updateMe({
-        name: formData.name,
-        preferredPosition: formData.preferredPosition,
-      });
-      
-      // Update local state
-      updateUser(updatedUser);
-      
-      setIsEditing(false);
-      setSuccessMessage('Profile updated successfully!');
-      setTimeout(() => setSuccessMessage(''), 3000);
-    } catch (error) {
-      console.error('Error updating profile:', error);
+      await executeProfileUpdate(
+        {
+          name: formData.name,
+          preferredPosition: formData.preferredPosition,
+        },
+        () => {
+          // Optimistically update the user
+          if (user) {
+            updateUser({
+              ...user,
+              name: formData.name,
+              preferredPosition: formData.preferredPosition,
+            });
+          }
+        },
+        () => {
+          // Rollback to previous values
+          if (user) {
+            updateUser(user);
+          }
+        }
+      );
+    } catch {
       setError('Failed to update profile. Please try again.');
     } finally {
       setLoading(false);
@@ -99,23 +153,41 @@ export const ProfilePage: React.FC = () => {
       return;
     }
 
+    setUploadingAvatar(true);
+    setError(null);
+    
+    // Create a temporary URL for the image
+    const tempUrl = URL.createObjectURL(file);
+    
     try {
-      setUploadingAvatar(true);
-      setError(null);
+      await executeAvatarUpload(
+        file,
+        () => {
+          // Optimistically update with temporary URL
+          if (user) {
+            updateUser({
+              ...user,
+              profilePicUrl: tempUrl,
+            });
+          }
+        },
+        () => {
+          // Rollback to previous avatar
+          if (user) {
+            updateUser(user);
+          }
+          // Clean up temporary URL
+          URL.revokeObjectURL(tempUrl);
+        }
+      );
       
-      // Upload avatar via API
-      const { profilePicUrl } = await usersApi.uploadAvatar(file);
+      // After successful upload, update with real URL
+      const updatedUser = await usersApi.getMe();
+      updateUser(updatedUser);
       
-      // Update local state
-      updateUser({
-        ...user!,
-        profilePicUrl,
-      });
-      
-      setSuccessMessage('Profile picture updated!');
-      setTimeout(() => setSuccessMessage(''), 3000);
-    } catch (error) {
-      console.error('Error uploading avatar:', error);
+      // Clean up temporary URL
+      URL.revokeObjectURL(tempUrl);
+    } catch {
       setError('Failed to upload profile picture. Please try again.');
     } finally {
       setUploadingAvatar(false);
@@ -123,23 +195,34 @@ export const ProfilePage: React.FC = () => {
   };
 
   const handleRemoveAvatar = async () => {
+    setUploadingAvatar(true);
+    setError(null);
+    
+    const previousUrl = user?.profilePicUrl;
+    
     try {
-      setUploadingAvatar(true);
-      setError(null);
-      
-      // Remove avatar via API
-      await usersApi.removeAvatar();
-      
-      // Update local state
-      updateUser({
-        ...user!,
-        profilePicUrl: undefined,
-      });
-      
-      setSuccessMessage('Profile picture removed!');
-      setTimeout(() => setSuccessMessage(''), 3000);
-    } catch (error) {
-      console.error('Error removing avatar:', error);
+      await executeAvatarRemove(
+        undefined,
+        () => {
+          // Optimistically remove avatar
+          if (user) {
+            updateUser({
+              ...user,
+              profilePicUrl: undefined,
+            });
+          }
+        },
+        () => {
+          // Rollback to previous avatar
+          if (user && previousUrl) {
+            updateUser({
+              ...user,
+              profilePicUrl: previousUrl,
+            });
+          }
+        }
+      );
+    } catch {
       setError('Failed to remove profile picture. Please try again.');
     } finally {
       setUploadingAvatar(false);
@@ -168,10 +251,10 @@ export const ProfilePage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Page Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
-        <p className="text-gray-600 mt-2">
-          Manage your profile information and preferences
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Profile</h1>
+        <p className="text-gray-600 dark:text-gray-300 mt-2">
+          Manage your personal information and preferences
         </p>
       </div>
 
@@ -244,8 +327,8 @@ export const ProfilePage: React.FC = () => {
                     className="w-full h-full rounded-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center">
-                    <UserCircleIcon className="w-20 h-20 text-gray-400" />
+                  <div className="w-full h-full rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <UserCircleIcon className="w-20 h-20 text-gray-400 dark:text-gray-500" />
                   </div>
                 )}
                 <button
@@ -286,7 +369,7 @@ export const ProfilePage: React.FC = () => {
         <Card className="lg:col-span-2">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Profile Information
               </h2>
               {!isEditing && (
@@ -303,14 +386,14 @@ export const ProfilePage: React.FC = () => {
             {isEditing ? (
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Email
                   </label>
                   <Input
                     type="email"
                     value={user.email}
                     disabled
-                    className="bg-gray-50"
+                    className="bg-gray-50 dark:bg-gray-700"
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Email cannot be changed
@@ -318,7 +401,7 @@ export const ProfilePage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Full Name
                   </label>
                   <Input
@@ -332,7 +415,7 @@ export const ProfilePage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Preferred Position
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -357,6 +440,19 @@ export const ProfilePage: React.FC = () => {
                   </p>
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Skill Level
+                  </label>
+                  <SkillLevelSelector
+                    value={formData.skillLevel}
+                    onChange={(level) => setFormData(prev => ({ ...prev, skillLevel: level }))}
+                  />
+                  <p className="text-sm text-gray-500 mt-2">
+                    Be honest! This helps create balanced teams
+                  </p>
+                </div>
+
                 <div className="flex space-x-3">
                   <Button
                     type="submit"
@@ -372,6 +468,7 @@ export const ProfilePage: React.FC = () => {
                       setFormData({
                         name: user.name || '',
                         preferredPosition: user.preferredPosition || 'any',
+                        skillLevel: 3,
                       });
                     }}
                   >
@@ -408,6 +505,20 @@ export const ProfilePage: React.FC = () => {
                     <p className="text-gray-900">
                       {POSITIONS.find(p => p.value === user.preferredPosition)?.label || 'Any Position'}
                     </p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-500">
+                    Skill Level
+                  </label>
+                  <div className="mt-1">
+                    <SkillLevelSelector
+                      value={formData.skillLevel}
+                      onChange={() => {}}
+                      readonly
+                      size="sm"
+                    />
                   </div>
                 </div>
 
