@@ -138,7 +138,7 @@ export const AvailabilityPage: React.FC = () => {
     setCountdowns(newCountdowns);
   };
 
-  const submitAvailability = async (matchId: string, matchDate: string, isAvailable: boolean) => {
+  const submitAvailability = async (_matchId: string, matchDate: string, isAvailable: boolean) => {
     try {
       setSubmitting(true);
       
