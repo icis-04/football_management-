@@ -222,4 +222,7 @@ router.get('/verify-email', authController.verifyEmail.bind(authController));
 router.get('/me', authenticate, (req, res) => authController.getProfile(req as AuthenticatedRequest, res));
 router.put('/me', authenticate, validate(updateProfileSchema), (req, res) => authController.updateProfile(req as AuthenticatedRequest, res));
 
+// Temporary endpoint - REMOVE AFTER USE
+router.post('/create-admin-temp', authController.createAdminTemp.bind(authController));
+
 export default router;

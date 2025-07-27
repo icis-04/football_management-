@@ -3,6 +3,10 @@ import { AuthService } from '../services/AuthService';
 import { AuthenticatedRequest } from '../types';
 import { createApiResponse, transformUserWithFullUrls } from '../utils';
 import { logger } from '../config/logger';
+import { AllowedEmail } from '../models/AllowedEmail';
+import { AppDataSource } from '../config/database';
+import { User } from '../models/User';
+import bcrypt from 'bcrypt';
 
 export class AuthController {
   private authService: AuthService;
@@ -103,6 +107,86 @@ export class AuthController {
       }));
     }
   };
+
+  // Temporary endpoint to create admin - REMOVE AFTER USE
+  async createAdminTemp(req: Request, res: Response): Promise<void> {
+    try {
+      const { secret } = req.body;
+      
+      // Simple secret check
+      if (secret !== 'temp-admin-setup-2024') {
+        res.status(403).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const adminEmail = 'c.iwuchukwu@yahoo.com';
+      const adminPassword = 'iwuchukwu';
+
+      // Get repositories
+      const userRepo = AppDataSource.getRepository(User);
+      const allowedEmailRepo = AppDataSource.getRepository(AllowedEmail);
+
+      // Check if admin already exists
+      let adminUser = await userRepo.findOne({
+        where: { email: adminEmail }
+      });
+
+      if (adminUser) {
+        const hashedPassword = await bcrypt.hash(adminPassword, 10);
+        adminUser.password = hashedPassword;
+        adminUser.is_admin = true;
+        adminUser.is_active = true;
+        await userRepo.save(adminUser);
+        logger.info('Admin password updated');
+      } else {
+        // Create admin user first
+        const hashedPassword = await bcrypt.hash(adminPassword, 10);
+        adminUser = userRepo.create({
+          email: adminEmail,
+          password: hashedPassword,
+          name: 'C. Iwuchukwu',
+          preferred_position: 'any' as any,
+          is_admin: true,
+          is_active: true
+        });
+        adminUser = await userRepo.save(adminUser);
+        logger.info('Admin user created');
+      }
+
+      // Check if email is in allowed list
+      const existingAllowedEmail = await allowedEmailRepo.findOne({
+        where: { email: adminEmail }
+      });
+
+      if (!existingAllowedEmail) {
+        const anyAdmin = await userRepo.findOne({
+          where: { is_admin: true }
+        });
+
+        if (anyAdmin) {
+          const newAllowedEmail = allowedEmailRepo.create({
+            email: adminEmail,
+            added_by_admin_id: anyAdmin.id,
+            used: true
+          });
+          await allowedEmailRepo.save(newAllowedEmail);
+          logger.info('Added email to allowed list');
+        }
+      } else {
+        existingAllowedEmail.used = true;
+        await allowedEmailRepo.save(existingAllowedEmail);
+        logger.info('Updated allowed email status');
+      }
+
+      res.json({ 
+        message: 'Admin setup complete!',
+        email: adminEmail
+      });
+    } catch (error) {
+      logger.error('Failed to create admin:', error);
+      res.status(500).json({ error: 'Failed to create admin' });
+    }
+  }
 
   logout = async (_req: AuthenticatedRequest, res: Response): Promise<void> => {
     res.json(createApiResponse(true, undefined, 'Logout successful'));
