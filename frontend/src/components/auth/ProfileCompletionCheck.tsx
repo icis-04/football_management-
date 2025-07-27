@@ -17,6 +17,11 @@ export const ProfileCompletionCheck: React.FC<ProfileCompletionCheckProps> = ({ 
       return;
     }
 
+    // Skip profile completion check for admin users
+    if (user.isAdmin) {
+      return;
+    }
+
     // Check if profile is incomplete (no name or position set to default)
     const isProfileIncomplete = !user.name || user.preferredPosition === 'any';
     
