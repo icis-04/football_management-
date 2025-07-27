@@ -7,9 +7,7 @@ import { teamsApi } from '../../api/teams';
 import type { TeamMatch } from '../../api/teams';
 import { useUIStore } from '../../stores/uiStore';
 
-import { 
-  UserGroupIcon
-} from '@heroicons/react/24/outline';
+// Icons imported as needed
 
 // Sub-pages
 export const EmailManagement: React.FC = () => {
@@ -363,8 +361,8 @@ export const TeamManagement: React.FC = () => {
     if (!confirm('Are you sure you want to regenerate teams? This will override any manual adjustments.')) {
       return;
     }
-    
-    showNotification({
+
+        showNotification({
       type: 'info',
       title: 'Team regeneration is handled automatically',
       message: 'Teams are generated every Monday and Wednesday at 12 PM'
@@ -462,20 +460,20 @@ export const TeamManagement: React.FC = () => {
                   </div>
                 
                 <div className="flex justify-end space-x-3 mt-6">
-                  <Button
-                    variant="secondary"
+                          <Button
+                            variant="secondary"
                     onClick={handleRegenerateTeams}
-                  >
+                          >
                     Regenerate Teams
-                  </Button>
-                  <Button
-                    variant="primary"
+                          </Button>
+                          <Button
+                            variant="primary"
                     onClick={() => showNotification({ type: 'info', title: 'Manual adjustments coming soon' })}
-                  >
+                        >
                     Make Adjustments
-                  </Button>
-                </div>
-              </div>
+                        </Button>
+                    </div>
+                  </div>
               ) : teamMatch && !teamMatch.isPublished ? (
                 <div className="text-center py-8">
                   <p className="text-gray-500 dark:text-gray-400 mb-4">Teams have been generated but not published yet.</p>
@@ -489,13 +487,13 @@ export const TeamManagement: React.FC = () => {
                   >
                     Publish Teams Now
                   </Button>
-                </div>
-              ) : (
+                    </div>
+                  ) : (
                 <div className="text-center py-8">
                   <p className="text-gray-500 dark:text-gray-400 mb-4">No teams generated yet for the next match.</p>
-                  <p className="text-sm text-gray-400 dark:text-gray-500">
+                      <p className="text-sm text-gray-400 dark:text-gray-500">
                     Teams are automatically generated every Monday and Wednesday at 12 PM
-                  </p>
+                      </p>
                 </div>
               )}
             </div>
