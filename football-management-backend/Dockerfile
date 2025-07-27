@@ -23,6 +23,14 @@ COPY . .
 # Build the application
 RUN npm run build
 
+# Debug: Show build output
+RUN echo "=== Current directory contents ===" && \
+    ls -la && \
+    echo "=== dist directory contents ===" && \
+    ls -la dist/ && \
+    echo "=== Checking for app.js ===" && \
+    ls -la dist/app.js || echo "app.js not found in dist"
+
 # Remove devDependencies after build to reduce image size
 RUN npm prune --production
 
