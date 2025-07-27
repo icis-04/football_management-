@@ -62,6 +62,9 @@ export class User {
   @OneToMany('AllowedEmail', 'addedByAdmin')
   addedEmails!: any[];
 
+  @OneToMany('NotificationPreference', 'user')
+  notificationPreferences!: any[];
+
   /**
    * Convert to safe user profile (without password)
    */

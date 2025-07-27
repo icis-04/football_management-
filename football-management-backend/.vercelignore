@@ -1,0 +1,49 @@
+# Dependencies
+node_modules
+
+# Test files
+**/*.test.ts
+**/*.spec.ts
+jest.config.js
+coverage
+
+# Development files
+.env
+.env.local
+env.example
+
+# Build artifacts
+dist
+*.log
+
+# Database files
+data
+*.db
+*.sqlite
+
+# Upload directory
+uploads
+
+# Documentation
+*.md
+docs
+
+# Scripts
+scripts
+
+# Docker files
+Dockerfile
+docker-compose.yml
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# Development dependencies
+tsconfig.tsbuildinfo
+.eslintrc.js
+.prettierrc 

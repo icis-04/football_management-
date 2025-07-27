@@ -498,7 +498,7 @@ export const AvailabilityPage: React.FC = () => {
       ) : (
         /* List View - existing matches display */
         <>
-          {matches.map(match => {
+          {matches.slice(0, 2).map(match => {
             const countdown = countdowns[match.id];
             const matchDateOnly = match.date.split('T')[0];
             const userAvailability = myAvailability.find(a => a.matchDate === matchDateOnly);
@@ -609,6 +609,15 @@ export const AvailabilityPage: React.FC = () => {
                 description="There are no matches scheduled at the moment. Check back later!"
               />
             </Card>
+          )}
+          
+          {/* Show more matches indicator */}
+          {matches.length > 2 && (
+            <div className="text-center py-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Showing next 2 matches out of {matches.length} total
+              </p>
+            </div>
           )}
         </>
       )}

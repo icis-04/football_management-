@@ -3,6 +3,8 @@ import { TeamGenerationService } from '../services/TeamGenerationService';
 import { AuthenticatedRequest } from '../types/auth';
 import { createApiResponse } from '../utils';
 import { logger } from '../config/logger';
+import { AppDataSource } from '../config/database';
+import { Team } from '../models/Team';
 
 export class TeamsController {
   private teamGenerationService: TeamGenerationService;
@@ -23,10 +25,20 @@ export class TeamsController {
         
         if (arePublished) {
           const teams = await this.teamGenerationService.getPublishedTeams(matchDate.date);
+          
+          // Get the published_at date
+          const teamRecord = await AppDataSource.getRepository(Team)
+            .findOne({
+              where: { match_date: matchDate.date, is_published: true },
+              order: { published_at: 'DESC' }
+            });
+          
           teamsData.push({
             matchDate: matchDate.date.toISOString().split('T')[0],
             dayOfWeek: matchDate.dayOfWeek,
             teams,
+            isPublished: true,
+            publishedAt: teamRecord?.published_at?.toISOString()
           });
         }
       }
@@ -78,9 +90,18 @@ export class TeamsController {
 
       const teams = await this.teamGenerationService.getPublishedTeams(parsedDate);
       
+      // Get the first team to check published_at date
+      const teamRecord = await AppDataSource.getRepository(Team)
+        .findOne({
+          where: { match_date: parsedDate, is_published: true },
+          order: { published_at: 'DESC' }
+        });
+      
       res.json(createApiResponse(true, { 
         matchDate: date,
         teams,
+        isPublished: true,
+        publishedAt: teamRecord?.published_at?.toISOString()
       }));
     } catch (error) {
       logger.error('Get teams for match failed', {

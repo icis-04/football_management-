@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: football-backend
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_PATH
+        value: /var/data/football.db
+      - key: UPLOAD_PATH
+        value: /var/data/uploads
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: PORT
+        value: 3000
+    disk:
+      name: football-data
+      mountPath: /var/data
+      sizeGB: 1 

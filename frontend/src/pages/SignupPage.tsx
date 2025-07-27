@@ -12,8 +12,39 @@ import { Card } from '../components/common/Card';
 import { PasswordStrengthIndicator } from '../components/common/PasswordStrengthIndicator';
 import type { Position } from '../types';
 
+// Custom email validation regex for stricter validation
+const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
 const signupSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string()
+    .min(1, 'Email is required')
+    .email('Invalid email address')
+    .refine((email) => emailRegex.test(email), {
+      message: 'Please enter a valid email address',
+    })
+    .refine((email) => {
+      // Check for common typos and invalid patterns
+      const invalidPatterns = [
+        /\.{2,}/, // Multiple dots in a row
+        /@.*@/, // Multiple @ symbols
+        /^\./, // Starts with dot
+        /\.$/, // Ends with dot
+        /@\./, // @ followed by dot
+        /\.@/, // Dot followed by @
+      ];
+      return !invalidPatterns.some(pattern => pattern.test(email));
+    }, {
+      message: 'Email format is invalid',
+    })
+    .refine((email) => {
+      // Ensure email has a valid domain extension
+      const parts = email.split('@');
+      if (parts.length !== 2) return false;
+      const domain = parts[1];
+      return domain.includes('.') && domain.split('.').pop()!.length >= 2;
+    }, {
+      message: 'Email must have a valid domain',
+    }),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirmPassword: z.string(),
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -123,17 +154,6 @@ export const SignupPage: React.FC = () => {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        {/* Test Info - Remove in production */}
-        {import.meta.env.DEV && (
-          <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <h3 className="text-sm font-semibold text-green-900 mb-2">Test Mode:</h3>
-            <p className="text-sm text-green-800">
-              Any email ending with @test.com is allowed for signup.
-              Try: newplayer@test.com
-            </p>
-          </div>
-        )}
-        
         <Card className="py-8 px-4 sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div>

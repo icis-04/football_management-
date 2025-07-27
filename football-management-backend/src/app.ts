@@ -19,6 +19,7 @@ import userRoutes from './routes/users';
 import availabilityRoutes from './routes/availability';
 import teamRoutes from './routes/teams';
 import adminRoutes from './routes/admin';
+import adminTeamsRoutes from './routes/admin-teams';
 import notificationRoutes from './routes/notifications';
 import analyticsRoutes from './routes/analytics';
 import advancedTeamRoutes from './routes/advanced-teams';
@@ -173,8 +174,10 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/availability', availabilityRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
-app.use('/api/v1/advanced-teams', advancedTeamRoutes);app.use('/api/v1/teams', teamRoutes);
+app.use('/api/v1/advanced-teams', advancedTeamRoutes);
+app.use('/api/v1/teams', teamRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/admin/teams', adminTeamsRoutes);
 
 // Root endpoint
 app.get('/', (_req: Request, res: Response) => {
@@ -273,9 +276,16 @@ process.on('uncaughtException', (error) => {
   process.exit(1);
 });
 
-// Start the server
-if (require.main === module) {
+// Start the server only if not in serverless environment
+if (require.main === module && !process.env['VERCEL']) {
   startServer();
+}
+
+// Initialize database for serverless
+if (process.env['VERCEL']) {
+  initializeDatabase().catch(error => {
+    logger.error('Failed to initialize database in serverless:', error);
+  });
 }
 
 export default app; 

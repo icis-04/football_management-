@@ -10,8 +10,30 @@ import { Button } from '../components/common/Button';
 
 import { Card } from '../components/common/Card';
 
+// Custom email validation regex for stricter validation
+const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string()
+    .min(1, 'Email is required')
+    .email('Invalid email address')
+    .refine((email) => emailRegex.test(email), {
+      message: 'Please enter a valid email address',
+    })
+    .refine((email) => {
+      // Check for common typos and invalid patterns
+      const invalidPatterns = [
+        /\.{2,}/, // Multiple dots in a row
+        /@.*@/, // Multiple @ symbols
+        /^\./, // Starts with dot
+        /\.$/, // Ends with dot
+        /@\./, // @ followed by dot
+        /\.@/, // Dot followed by @
+      ];
+      return !invalidPatterns.some(pattern => pattern.test(email));
+    }, {
+      message: 'Email format is invalid',
+    }),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   rememberMe: z.boolean().optional(),
 });
@@ -73,24 +95,6 @@ export const LoginPage: React.FC = () => {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        {/* Test Credentials Info - Remove in production */}
-        {import.meta.env.DEV && (
-          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h3 className="text-sm font-semibold text-blue-900 mb-2">Test Accounts:</h3>
-            <div className="space-y-1 text-sm text-blue-800">
-              <div>
-                <span className="font-medium">Regular Player:</span> player@test.com / password123
-              </div>
-              <div>
-                <span className="font-medium">Admin:</span> admin@test.com / admin123
-              </div>
-              <div>
-                <span className="font-medium">Goalkeeper:</span> goalkeeper@test.com / keeper123
-              </div>
-            </div>
-          </div>
-        )}
-        
         <Card className="py-8 px-4 sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div>

@@ -43,8 +43,11 @@ const getEnvironmentConfig = (): EnvironmentConfig => {
   if (process.env['EMAIL_HOST']) config.EMAIL_HOST = process.env['EMAIL_HOST'];
   if (process.env['EMAIL_USER']) config.EMAIL_USER = process.env['EMAIL_USER'];
   if (process.env['EMAIL_PASS']) config.EMAIL_PASS = process.env['EMAIL_PASS'];
-  if (process.env['EMAIL_FROM'] || process.env['EMAIL_USER']) {
-    config.EMAIL_FROM = process.env['EMAIL_FROM'] || process.env['EMAIL_USER'];
+  
+  // Set EMAIL_FROM with proper type checking
+  const emailFrom = process.env['EMAIL_FROM'] || process.env['EMAIL_USER'];
+  if (emailFrom) {
+    config.EMAIL_FROM = emailFrom;
   }
 
   return config;

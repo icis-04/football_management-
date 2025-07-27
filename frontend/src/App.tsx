@@ -19,7 +19,7 @@ import './app.css';
 
 // Admin pages
 import { AdminLayout } from './pages/admin/AdminLayout';
-import { EmailManagement, UserManagement, TeamManagement, Analytics } from './pages/admin/AdminDashboard';
+import { EmailManagement, UserManagement, TeamManagement } from './pages/admin/AdminDashboard';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 function App() {
@@ -84,7 +84,6 @@ function App() {
                 <Route path="emails" element={<EmailManagement />} />
                 <Route path="users" element={<UserManagement />} />
                 <Route path="teams" element={<TeamManagement />} />
-                <Route path="analytics" element={<Analytics />} />
               </Route>
             </Route>
           </Routes>

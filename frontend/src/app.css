@@ -4,17 +4,64 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Set background color on :root for overscroll areas */
+:root {
+  background-color: rgb(249 250 251); /* gray-50 */
+}
+
+:root.dark {
+  background-color: rgb(17 24 39); /* gray-900 */
+}
+
 @layer base {
   html {
-    @apply antialiased;
+    @apply antialiased bg-gray-50;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
+    /* Fix overscroll background color */
+    background-color: rgb(249 250 251); /* gray-50 */
+  }
+  
+  html.dark {
+    background-color: rgb(17 24 39); /* gray-900 */
   }
   
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-gray-50 text-gray-900 min-h-screen;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Fix overscroll on mobile */
+    overscroll-behavior: none;
+    overscroll-behavior-y: none;
+  }
+  
+  body.dark {
+    @apply bg-gray-900 text-gray-100;
+  }
+  
+  /* Root app container */
+  #root {
+    min-height: 100vh;
+    background-color: inherit;
+  }
+  
+  /* Additional overscroll fixes for specific scenarios */
+  @supports (-webkit-touch-callout: none) {
+    /* iOS specific fixes */
+    body {
+      /* This helps with the rubber band effect */
+      position: relative;
+    }
+  }
+  
+  /* Apply overscroll behavior to all scrollable elements */
+  * {
+    overscroll-behavior: contain;
+  }
+  
+  /* Ensure main containers have proper backgrounds */
+  .min-h-screen {
+    background-color: inherit;
   }
   
   /* Prevent text selection on buttons */

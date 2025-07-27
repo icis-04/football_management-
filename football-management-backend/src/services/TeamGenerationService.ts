@@ -546,4 +546,55 @@ export class TeamGenerationService {
       return false;
     }
   }
+
+  /**
+   * Get all teams for a specific match (both published and unpublished)
+   * This is for admin preview functionality
+   */
+  async getAllTeamsForMatch(matchDate: Date): Promise<GeneratedTeam[]> {
+    try {
+      // Format the date to ensure consistent comparison
+      const formattedDate = matchDate.toISOString().split('T')[0];
+      
+      const teams = await this.teamRepository
+        .createQueryBuilder('team')
+        .leftJoinAndSelect('team.teamPlayers', 'teamPlayer')
+        .leftJoinAndSelect('teamPlayer.user', 'user')
+        .where('DATE(team.match_date) = :matchDate', { matchDate: formattedDate })
+        .orderBy('team.team_number', 'ASC')
+        .addOrderBy('teamPlayer.is_substitute', 'ASC')
+        .getMany();
+
+      return teams.map(team => ({
+        teamNumber: team.team_number,
+        teamName: team.team_name || `Team ${team.team_number}`,
+        players: team.teamPlayers
+          .filter(tp => !tp.is_substitute)
+          .map(tp => ({
+            id: tp.user.id,
+            name: tp.user.name,
+            preferred_position: tp.user.preferred_position,
+            assigned_position: tp.assigned_position,
+            is_substitute: false,
+            profile_pic_url: tp.user.profile_pic_url,
+          })),
+        substitutes: team.teamPlayers
+          .filter(tp => tp.is_substitute)
+          .map(tp => ({
+            id: tp.user.id,
+            name: tp.user.name,
+            preferred_position: tp.user.preferred_position,
+            is_substitute: true,
+            substitute_for_position: tp.substitute_for_position,
+            profile_pic_url: tp.user.profile_pic_url,
+          })),
+      }));
+    } catch (error) {
+      logger.error('Failed to get all teams for match', {
+        matchDate: matchDate.toISOString(),
+        error: (error as Error).message,
+      });
+      throw error;
+    }
+  }
 } 

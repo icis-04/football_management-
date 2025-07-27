@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Shield, Mail, Users, ChartBar, Wrench } from 'lucide-react';
+import { Shield, Mail, Users, Wrench } from 'lucide-react';
 
 export const AdminToolbar: React.FC = () => {
   const location = useLocation();
@@ -9,7 +9,6 @@ export const AdminToolbar: React.FC = () => {
     { to: '/admin/emails', icon: Mail, label: 'Emails' },
     { to: '/admin/users', icon: Users, label: 'Users' },
     { to: '/admin/teams', icon: Wrench, label: 'Teams' },
-    { to: '/admin/analytics', icon: ChartBar, label: 'Analytics' },
   ];
 
   const isAdminRoute = location.pathname.startsWith('/admin');
