@@ -3,6 +3,7 @@ import { NotificationController } from '../controllers/NotificationController';
 import { authenticate } from '../middlewares/auth';
 import { validate } from '../middlewares/validation';
 import Joi from 'joi';
+import { AuthenticatedRequest } from '../types';
 
 const router = Router();
 const notificationController = new NotificationController();
@@ -20,24 +21,24 @@ const updatePreferencesSchema = Joi.object({
 router.use(authenticate);
 
 // Get user notifications
-router.get('/', notificationController.getNotifications.bind(notificationController));
+router.get('/', (req, res) => notificationController.getNotifications(req as AuthenticatedRequest, res));
 
 // Mark notification as read
-router.patch('/:id/read', notificationController.markAsRead.bind(notificationController));
+router.patch('/:id/read', (req, res) => notificationController.markAsRead(req as AuthenticatedRequest, res));
 
 // Mark all notifications as read
-router.patch('/read-all', notificationController.markAllAsRead.bind(notificationController));
+router.patch('/read-all', (req, res) => notificationController.markAllAsRead(req as AuthenticatedRequest, res));
 
 // Get notification preferences
-router.get('/preferences', notificationController.getPreferences.bind(notificationController));
+router.get('/preferences', (req, res) => notificationController.getPreferences(req as AuthenticatedRequest, res));
 
 // Update notification preferences
 router.put('/preferences', 
   validate(updatePreferencesSchema),
-  notificationController.updatePreferences.bind(notificationController)
+  (req, res) => notificationController.updatePreferences(req as AuthenticatedRequest, res)
 );
 
 // Send test notification (for testing purposes)
-router.post('/test', notificationController.sendTestNotification.bind(notificationController));
+router.post('/test', (req, res) => notificationController.sendTestNotification(req as AuthenticatedRequest, res));
 
 export default router;

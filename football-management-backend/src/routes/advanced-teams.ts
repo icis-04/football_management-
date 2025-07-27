@@ -4,6 +4,7 @@ import { authenticate } from '../middlewares/auth';
 import { validateRequest } from '../middlewares/validateRequest';
 import { requireAdmin } from '../middlewares/requireAdmin';
 import Joi from 'joi';
+import { AuthenticatedRequest } from '../types';
 
 const router = Router();
 const advancedTeamController = new AdvancedTeamController();
@@ -47,40 +48,40 @@ router.use(requireAdmin);
 // Team adjustment operations
 router.post('/adjust', 
   validateRequest(teamAdjustmentSchema),
-  advancedTeamController.adjustTeam.bind(advancedTeamController)
+  (req, res) => advancedTeamController.adjustTeam(req as AuthenticatedRequest, res)
 );
 
 // Swap players between teams
 router.post('/swap-players',
   validateRequest(swapPlayersSchema),
-  advancedTeamController.swapPlayers.bind(advancedTeamController)
+  (req, res) => advancedTeamController.swapPlayers(req as AuthenticatedRequest, res)
 );
 
 // Team templates
 router.post('/:teamId/save-template',
   validateRequest(templateSchema),
-  advancedTeamController.saveAsTemplate.bind(advancedTeamController)
+  (req, res) => advancedTeamController.saveAsTemplate(req as AuthenticatedRequest, res)
 );
 
-router.get('/templates', advancedTeamController.getTemplates.bind(advancedTeamController));
+router.get('/templates', (req, res) => advancedTeamController.getTemplates(req as AuthenticatedRequest, res));
 
 router.post('/templates/:templateId/apply',
   validateRequest(applyTemplateSchema),
-  advancedTeamController.applyTemplate.bind(advancedTeamController)
+  (req, res) => advancedTeamController.applyTemplate(req as AuthenticatedRequest, res)
 );
 
 // Team analysis
-router.get('/:teamId/balance', advancedTeamController.analyzeBalance.bind(advancedTeamController));
+router.get('/:teamId/balance', (req, res) => advancedTeamController.analyzeBalance(req as AuthenticatedRequest, res));
 
-router.get('/:teamId/history', advancedTeamController.getModificationHistory.bind(advancedTeamController));
+router.get('/:teamId/history', (req, res) => advancedTeamController.getModificationHistory(req as AuthenticatedRequest, res));
 
 // Bulk operations
 router.post('/bulk-operations',
   validateRequest(bulkOperationsSchema),
-  advancedTeamController.bulkTeamOperations.bind(advancedTeamController)
+  (req, res) => advancedTeamController.bulkTeamOperations(req as AuthenticatedRequest, res)
 );
 
 // Team optimization (future feature)
-router.post('/optimize', advancedTeamController.optimizeTeams.bind(advancedTeamController));
+router.post('/optimize', (req, res) => advancedTeamController.optimizeTeams(req as AuthenticatedRequest, res));
 
 export default router;

@@ -158,7 +158,7 @@ export class UsersController {
       await deleteFile(filepath);
 
       // Update user record
-      user.profile_pic_url = null;
+      user.profile_pic_url = undefined;
       user.updated_at = new Date();
       await this.userRepository.save(user);
 

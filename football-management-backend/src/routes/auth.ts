@@ -8,6 +8,7 @@ import {
   refreshTokenSchema,
   updateProfileSchema,
 } from '../validators/auth';
+import { AuthenticatedRequest } from '../types';
 import { validateRequest } from '../middlewares/validateRequest';
 import { rateLimiter } from '../middlewares/rateLimiter';
 
@@ -173,7 +174,7 @@ router.post('/refresh', validateRequest(refreshTokenSchema), authController.refr
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/logout', authController.logout.bind(authController));
+router.post('/logout', (req, res) => authController.logout(req as AuthenticatedRequest, res));
 
 /**
  * @swagger
@@ -218,7 +219,7 @@ router.post('/logout', authController.logout.bind(authController));
 router.get('/verify-email', authController.verifyEmail.bind(authController));
 
 // Protected routes
-router.get('/me', authenticate, authController.getProfile.bind(authController));
-router.put('/me', authenticate, validate(updateProfileSchema), authController.updateProfile.bind(authController));
+router.get('/me', authenticate, (req, res) => authController.getProfile(req as AuthenticatedRequest, res));
+router.put('/me', authenticate, validate(updateProfileSchema), (req, res) => authController.updateProfile(req as AuthenticatedRequest, res));
 
 export default router;

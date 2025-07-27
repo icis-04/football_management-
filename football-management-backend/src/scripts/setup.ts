@@ -13,21 +13,8 @@ async function setupDatabase() {
     // Create admin service
     const adminService = new AdminService();
 
-    // Create initial admin user
-    try {
-      const admin = await adminService.createInitialAdmin(
-        'admin@football.com',
-        'admin123',
-        'System Administrator'
-      );
-      logger.info('Initial admin created:', { id: admin.id, email: admin.email });
-    } catch (error) {
-      if ((error as Error).message === 'ADMIN_ALREADY_EXISTS') {
-        logger.info('Admin already exists, skipping creation');
-      } else {
-        throw error;
-      }
-    }
+    // Admin user should be created separately
+    logger.info('Database initialized. Admin user should be created separately.');
 
     // Add some allowed emails for testing
     const testEmails = [

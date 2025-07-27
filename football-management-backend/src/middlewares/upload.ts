@@ -109,29 +109,31 @@ export const deleteFile = async (filepath: string): Promise<void> => {
 };
 
 // Serve static files middleware
-export const serveUploads = (req: Request, res: Response) => {
+export const serveUploads = (req: Request, res: Response): void => {
   const filename = req.params['filename'];
   if (!filename) {
-    return res.status(400).json({
+    res.status(400).json({
       error: {
         code: 'BAD_REQUEST',
         message: 'Filename is required',
         timestamp: new Date().toISOString()
       }
     });
+    return;
   }
   
   const filepath = path.join(config.UPLOAD_PATH, filename);
   
   // Security check - prevent directory traversal
   if (!filepath.startsWith(path.resolve(config.UPLOAD_PATH))) {
-    return res.status(403).json({
+    res.status(403).json({
       error: {
         code: 'FORBIDDEN',
         message: 'Access denied',
         timestamp: new Date().toISOString()
       }
     });
+    return;
   }
 
   res.sendFile(path.resolve(filepath), (err) => {

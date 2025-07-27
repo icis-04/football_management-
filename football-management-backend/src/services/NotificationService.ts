@@ -38,7 +38,7 @@ export class NotificationService {
   private initializeEmailTransporter(): void {
     try {
       if (config.EMAIL_HOST && config.EMAIL_USER && config.EMAIL_PASS) {
-        this.emailTransporter = nodemailer.createTransporter({
+        this.emailTransporter = nodemailer.createTransport({
           host: config.EMAIL_HOST,
           port: config.EMAIL_PORT || 587,
           secure: config.EMAIL_SECURE || false,

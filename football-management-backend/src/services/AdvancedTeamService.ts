@@ -1,7 +1,6 @@
 import { Repository } from 'typeorm';
 import { AppDataSource } from '../config/database';
 import { Team } from '../models/Team';
-import { TeamPlayer } from '../models/TeamPlayer';
 import { TeamTemplate } from '../models/TeamTemplate';
 import { User } from '../models/User';
 import { logger } from '../config/logger';
@@ -32,10 +31,12 @@ export interface TeamBalanceMetrics {
 
 export class AdvancedTeamService extends TeamGenerationService {
   private teamTemplateRepository: Repository<TeamTemplate>;
+  private userRepository: Repository<User>;
 
   constructor() {
     super();
     this.teamTemplateRepository = AppDataSource.getRepository(TeamTemplate);
+    this.userRepository = AppDataSource.getRepository(User);
   }
 
   async applyTeamAdjustment(adjustment: TeamAdjustment, adminId: number): Promise<void> {
@@ -282,7 +283,15 @@ export class AdvancedTeamService extends TeamGenerationService {
   private async generateTeamsFromTemplate(matchDate: Date, configuration: any): Promise<Team[]> {
     // This would implement template-based team generation
     // For now, fall back to regular generation
-    return await this.generateTeams(matchDate);
+    const result = await this.generateTeams(matchDate);
+    
+    // Get the actual Team entities from the database
+    const teams = await this.teamRepository.find({
+      where: { match_date: matchDate },
+      order: { team_number: 'ASC' }
+    });
+    
+    return teams;
   }
 
   async analyzeTeamBalance(teamId: number): Promise<TeamBalanceMetrics> {

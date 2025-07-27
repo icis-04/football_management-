@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AnalyticsController } from '../controllers/AnalyticsController';
 import { authenticate, requireAdmin } from '../middlewares/auth';
+import { AuthenticatedRequest } from '../types';
 
 const router = Router();
 const analyticsController = new AnalyticsController();
@@ -8,25 +9,25 @@ const analyticsController = new AnalyticsController();
 // Apply authentication to all routes
 router.use(authenticate);
 
-// Personal player statistics (available to all users)
-router.get('/my-stats', analyticsController.getPlayerStats.bind(analyticsController));
+// Player-specific analytics
+router.get('/my-stats', (req, res) => analyticsController.getPlayerStats(req as AuthenticatedRequest, res));
 
-// Admin-only analytics routes
+// Admin routes
 router.use(requireAdmin);
 
 // Dashboard summary
-router.get('/dashboard', analyticsController.getDashboardSummary.bind(analyticsController));
+router.get('/dashboard', (req, res) => analyticsController.getDashboardSummary(req as AuthenticatedRequest, res));
 
 // Player performance analytics
-router.get('/players', analyticsController.getPlayerPerformance.bind(analyticsController));
+router.get('/players', (req, res) => analyticsController.getPlayerPerformance(req as AuthenticatedRequest, res));
 
 // Team analytics
-router.get('/teams', analyticsController.getTeamAnalytics.bind(analyticsController));
+router.get('/teams', (req, res) => analyticsController.getTeamAnalytics(req as AuthenticatedRequest, res));
 
 // System analytics
-router.get('/system', analyticsController.getSystemAnalytics.bind(analyticsController));
+router.get('/system', (req, res) => analyticsController.getSystemAnalytics(req as AuthenticatedRequest, res));
 
 // Availability trends
-router.get('/availability-trends', analyticsController.getAvailabilityTrends.bind(analyticsController));
+router.get('/availability-trends', (req, res) => analyticsController.getAvailabilityTrends(req as AuthenticatedRequest, res));
 
 export default router;

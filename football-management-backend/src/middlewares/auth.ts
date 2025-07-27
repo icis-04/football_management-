@@ -19,7 +19,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
 
   try {
     const decoded = jwt.verify(token, config.JWT_SECRET) as JWTPayload;
-    req.user = decoded;
+    (req as AuthenticatedRequest).user = decoded;
     next();
   } catch (error) {
     res.status(401).json(createApiResponse(false, undefined, undefined, {

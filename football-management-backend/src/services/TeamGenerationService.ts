@@ -41,8 +41,8 @@ export interface TeamGenerationResult {
 }
 
 export class TeamGenerationService {
-  private teamRepository: Repository<Team>;
-  private teamPlayerRepository: Repository<TeamPlayer>;
+  protected teamRepository: Repository<Team>;
+  protected teamPlayerRepository: Repository<TeamPlayer>;
   private availabilityService: AvailabilityService;
 
   constructor() {
