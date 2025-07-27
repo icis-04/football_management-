@@ -90,7 +90,7 @@ function App() {
           <ToastContainer />
           <PWAInstallPrompt />
           <PWAInstallButton />
-          <OnboardingTour />
+          {/* <OnboardingTour /> */}
         </div>
       </Router>
     </ErrorBoundary>
