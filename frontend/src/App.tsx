@@ -10,9 +10,10 @@ import { Layout } from './components/layout/Layout';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { ProfileCompletionCheck } from './components/auth/ProfileCompletionCheck';
 import { useAuthStore } from './stores/authStore';
+import { useKeepAlive } from './hooks/useKeepAlive';
 import { ToastContainer } from './components/common/Toast';
 import { PWAInstallPrompt, PWAInstallButton } from './components/common/PWAInstallPrompt';
-import { OnboardingTour } from './components/common/OnboardingTour';
+// import { OnboardingTour } from './components/common/OnboardingTour';
 import * as serviceWorker from './utils/serviceWorker';
 import { getAccessToken } from './api/client';
 import './app.css';
@@ -24,6 +25,9 @@ import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 function App() {
   const { refreshUser } = useAuthStore();
+  
+  // Keep the backend alive to prevent Render free tier from sleeping
+  useKeepAlive();
 
   useEffect(() => {
     // Try to refresh user on app load if token exists
