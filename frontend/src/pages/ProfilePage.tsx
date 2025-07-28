@@ -89,6 +89,10 @@ export const ProfilePage: React.FC = () => {
     }
   }, [location.state]);
 
+  // Check if profile is incomplete
+  const isProfileIncomplete = !user?.name || user?.preferredPosition === 'any';
+  const isNewUser = user?.createdAt && (Date.now() - new Date(user.createdAt).getTime()) < (24 * 60 * 60 * 1000);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -258,8 +262,44 @@ export const ProfilePage: React.FC = () => {
         </p>
       </div>
 
-      {/* Profile Completion Message */}
-      {location.state?.message && (
+      {/* Profile Completion Message for New Users */}
+      {isProfileIncomplete && isNewUser && (
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 md:p-6">
+          <div className="flex items-start space-x-3">
+            <div className="flex-shrink-0">
+              <svg className="w-6 h-6 text-amber-600 dark:text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-amber-900 dark:text-amber-100 mb-1">
+                Complete Your Profile to Get Started
+              </h3>
+              <p className="text-amber-800 dark:text-amber-200 text-sm md:text-base">
+                Welcome to Football Manager! To access all features and join teams, please complete your profile by:
+              </p>
+              <ul className="mt-2 space-y-1 text-sm text-amber-700 dark:text-amber-300">
+                <li className="flex items-center space-x-2">
+                  <span className={user?.name ? 'line-through opacity-60' : ''}>✓ Adding your name</span>
+                  {user?.name && <CheckIcon className="w-4 h-4 text-green-600" />}
+                </li>
+                <li className="flex items-center space-x-2">
+                  <span className={user?.preferredPosition && user.preferredPosition !== 'any' ? 'line-through opacity-60' : ''}>
+                    ✓ Selecting your preferred position (not "Any Position")
+                  </span>
+                  {user?.preferredPosition && user.preferredPosition !== 'any' && <CheckIcon className="w-4 h-4 text-green-600" />}
+                </li>
+              </ul>
+              <p className="mt-3 text-sm font-medium text-amber-900 dark:text-amber-100">
+                You won't be able to navigate to other pages until your profile is complete.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Original message if redirected */}
+      {location.state?.message && !isProfileIncomplete && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-blue-800">{location.state.message}</p>
         </div>
