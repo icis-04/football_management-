@@ -12,7 +12,8 @@ export const useKeepAlive = () => {
       try {
         // Use a lightweight endpoint that doesn't require authentication
         // Note: The health endpoint is at the root, not under /api/v1
-        await fetch(`${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || ''}/health`);
+        const baseUrl = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'https://football-management.onrender.com';
+        await fetch(`${baseUrl}/health`);
         console.log('Keep-alive ping sent successfully');
       } catch {
         // Silently fail - the backend might be starting up

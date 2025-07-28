@@ -211,6 +211,10 @@ const startServer = async () => {
     await initializeDatabase();
     logger.info('Database initialized successfully');
 
+    // Initialize admin user
+    const { initializeAdminUser } = await import('./scripts/init-admin');
+    await initializeAdminUser();
+
     // Start scheduled jobs
     const scheduledJobService = new ScheduledJobService();
     scheduledJobService.initializeJobs();
