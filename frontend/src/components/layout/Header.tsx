@@ -29,6 +29,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobileMenuOpen }
               onClick={onMenuToggle}
               className="md:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
               aria-label="Toggle menu"
+              data-tour="mobile-menu"
             >
               {isMobileMenuOpen ? (
                 <XMarkIcon className="h-6 w-6" />

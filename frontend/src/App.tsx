@@ -13,7 +13,7 @@ import { useAuthStore } from './stores/authStore';
 import { useKeepAlive } from './hooks/useKeepAlive';
 import { ToastContainer } from './components/common/Toast';
 import { PWAInstallPrompt, PWAInstallButton } from './components/common/PWAInstallPrompt';
-// import { OnboardingTour } from './components/common/OnboardingTour';
+import { OnboardingTour } from './components/common/OnboardingTour';
 import * as serviceWorker from './utils/serviceWorker';
 import { getAccessToken } from './api/client';
 import './app.css';
@@ -94,7 +94,7 @@ function App() {
           <ToastContainer />
           <PWAInstallPrompt />
           <PWAInstallButton />
-          {/* <OnboardingTour /> */}
+          <OnboardingTour />
         </div>
       </Router>
     </ErrorBoundary>

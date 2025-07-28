@@ -3,6 +3,7 @@ import Joyride, { STATUS } from 'react-joyride';
 import type { CallBackProps, Step } from 'react-joyride';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 
 interface OnboardingTourProps {
   run?: boolean;
@@ -18,6 +19,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   // Check if user has seen the tour
   useEffect(() => {
@@ -30,60 +32,74 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({
     }
   }, [user, location]);
 
-  // Define tour steps
+  // Define tour steps - adjust for mobile
   const steps: Step[] = [
     {
       target: 'body',
       content: (
         <div className="text-center">
-          <h2 className="text-xl font-bold mb-2">Welcome to Football Manager! ⚽</h2>
-          <p>Let's take a quick tour to help you get started.</p>
+          <h2 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold mb-2`}>Welcome to Football Manager! ⚽</h2>
+          <p className={isMobile ? 'text-sm' : ''}>Let's take a quick tour to help you get started.</p>
         </div>
       ),
       placement: 'center',
       disableBeacon: true,
     },
     {
-      target: '[data-tour="navigation"]',
-      content: 'Use the navigation menu to access different sections of the app.',
-      placement: 'right',
+      target: isMobile ? '[data-tour="mobile-menu"]' : '[data-tour="navigation"]',
+      content: isMobile 
+        ? 'Tap the menu icon to navigate between sections.' 
+        : 'Use the navigation menu to access different sections of the app.',
+      placement: isMobile ? 'bottom' : 'right',
+      spotlightPadding: isMobile ? 5 : 10,
     },
     {
       target: '[data-tour="profile-link"]',
       content: 'Complete your profile here to set your preferred position and upload a photo.',
-      placement: 'bottom',
+      placement: isMobile ? 'top' : 'bottom',
+      spotlightPadding: isMobile ? 5 : 10,
     },
     {
       target: '[data-tour="availability-link"]',
       content: 'Submit your availability for upcoming matches here. This is the most important feature!',
-      placement: 'right',
+      placement: isMobile ? 'top' : 'right',
+      spotlightPadding: isMobile ? 5 : 10,
     },
     {
       target: '[data-tour="teams-link"]',
       content: 'View the teams for upcoming matches once they are published.',
-      placement: 'right',
+      placement: isMobile ? 'top' : 'right',
+      spotlightPadding: isMobile ? 5 : 10,
     },
     {
       target: '[data-tour="dashboard-stats"]',
       content: 'Your dashboard shows important stats and upcoming matches at a glance.',
       placement: 'top',
+      spotlightPadding: isMobile ? 5 : 10,
     },
     {
       target: '[data-tour="quick-actions"]',
       content: 'Use quick actions for common tasks like submitting availability.',
-      placement: 'left',
+      placement: isMobile ? 'top' : 'left',
+      spotlightPadding: isMobile ? 5 : 10,
     },
     {
       target: '[data-tour="dark-mode"]',
       content: 'Toggle between light and dark mode for comfortable viewing.',
       placement: 'bottom',
+      spotlightPadding: isMobile ? 5 : 10,
     },
-    {
+  ];
+  
+  // Skip search step on mobile as it's not as relevant
+  if (!isMobile) {
+    steps.push({
       target: '[data-tour="search"]',
       content: 'Search for players, teams, or dates quickly with Cmd/Ctrl + K.',
       placement: 'bottom',
-    },
-  ];
+      spotlightPadding: 10,
+    });
+  }
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { status, index, type, action } = data;
@@ -110,40 +126,52 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({
     options: {
       primaryColor: '#3b82f6',
       zIndex: 10000,
+      overlayColor: isMobile ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.5)',
     },
     spotlight: {
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: 'transparent',
     },
     tooltip: {
       backgroundColor: '#ffffff',
       borderRadius: '8px',
       color: '#1f2937',
-      fontSize: '14px',
-      padding: '16px',
+      fontSize: isMobile ? '13px' : '14px',
+      padding: isMobile ? '12px' : '16px',
+      maxWidth: isMobile ? '280px' : '360px',
     },
     tooltipContainer: {
       textAlign: 'left' as const,
     },
     tooltipTitle: {
-      fontSize: '16px',
+      fontSize: isMobile ? '15px' : '16px',
       fontWeight: 'bold',
     },
     buttonNext: {
       backgroundColor: '#3b82f6',
       borderRadius: '6px',
       color: '#ffffff',
-      fontSize: '14px',
-      padding: '8px 16px',
+      fontSize: isMobile ? '13px' : '14px',
+      padding: isMobile ? '10px 20px' : '8px 16px',
+      minWidth: isMobile ? '80px' : 'auto',
     },
     buttonBack: {
       color: '#6b7280',
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
       marginRight: '8px',
+      padding: isMobile ? '10px 15px' : '8px 12px',
     },
     buttonSkip: {
       color: '#6b7280',
-      fontSize: '14px',
+      fontSize: isMobile ? '13px' : '14px',
+      padding: isMobile ? '10px 15px' : '8px 12px',
     },
+    tooltipFooter: {
+      marginTop: isMobile ? '12px' : '16px',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+
   };
 
   return (
