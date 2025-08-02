@@ -282,7 +282,7 @@ export const AvailabilityPage: React.FC = () => {
 
     if (isDeadlinePassed) {
       return (
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-500 dark:text-gray-400">
           Deadline passed
         </div>
       );

@@ -323,13 +323,13 @@ export const ProfilePage: React.FC = () => {
       {/* Profile Completion */}
       <Card>
         <div className="p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Profile Completion
           </h2>
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Your profile is {getCompletionPercentage()}% complete</span>
-              <span className="font-medium text-gray-900">{getCompletionPercentage()}%</span>
+              <span className="text-gray-600 dark:text-gray-300">Your profile is {getCompletionPercentage()}% complete</span>
+              <span className="font-medium text-gray-900 dark:text-white">{getCompletionPercentage()}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
@@ -338,7 +338,7 @@ export const ProfilePage: React.FC = () => {
               />
             </div>
             {getCompletionPercentage() < 100 && (
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                 Complete your profile to help with team organization
               </p>
             )}
@@ -350,7 +350,7 @@ export const ProfilePage: React.FC = () => {
         {/* Avatar Section */}
         <Card className="lg:col-span-1">
           <div className="p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Profile Picture
             </h2>
             <div className="space-y-4">
@@ -387,7 +387,7 @@ export const ProfilePage: React.FC = () => {
                 className="hidden"
               />
               <div className="text-center space-y-2">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   JPG or PNG. Max size 5MB.
                 </p>
                 {user.profilePicUrl && (
@@ -435,7 +435,7 @@ export const ProfilePage: React.FC = () => {
                     disabled
                     className="bg-gray-50 dark:bg-gray-700"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Email cannot be changed
                   </p>
                 </div>
@@ -466,8 +466,8 @@ export const ProfilePage: React.FC = () => {
                         onClick={() => handlePositionChange(position.value)}
                         className={`p-3 rounded-lg border-2 transition-all ${
                           formData.preferredPosition === position.value
-                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                            : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                         }`}
                       >
                         <div className="text-2xl mb-1">{position.emoji}</div>
@@ -475,7 +475,7 @@ export const ProfilePage: React.FC = () => {
                       </button>
                     ))}
                   </div>
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                     This helps with team organization but doesn't guarantee position assignment
                   </p>
                 </div>
@@ -488,7 +488,7 @@ export const ProfilePage: React.FC = () => {
                     value={formData.skillLevel}
                     onChange={(level) => setFormData(prev => ({ ...prev, skillLevel: level }))}
                   />
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                     Be honest! This helps create balanced teams
                   </p>
                 </div>
@@ -519,37 +519,37 @@ export const ProfilePage: React.FC = () => {
             ) : (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-500">
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                     Email
                   </label>
-                  <p className="text-gray-900 mt-1">{user.email}</p>
+                  <p className="text-gray-900 dark:text-white mt-1">{user.email}</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-500">
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                     Full Name
                   </label>
-                  <p className="text-gray-900 mt-1">
-                    {user.name || <span className="text-gray-400">Not set</span>}
+                  <p className="text-gray-900 dark:text-white mt-1">
+                    {user.name || <span className="text-gray-400 dark:text-gray-500">Not set</span>}
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-500">
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                     Preferred Position
                   </label>
                   <div className="flex items-center space-x-2 mt-1">
                     <span className="text-2xl">
                       {POSITIONS.find(p => p.value === user.preferredPosition)?.emoji || '🎯'}
                     </span>
-                    <p className="text-gray-900">
+                    <p className="text-gray-900 dark:text-white">
                       {POSITIONS.find(p => p.value === user.preferredPosition)?.label || 'Any Position'}
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-500">
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                     Skill Level
                   </label>
                   <div className="mt-1">
@@ -563,10 +563,10 @@ export const ProfilePage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-500">
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                     Account Type
                   </label>
-                  <p className="text-gray-900 mt-1">
+                  <p className="text-gray-900 dark:text-white mt-1">
                     {user.isAdmin ? 'Administrator' : 'Player'}
                   </p>
                 </div>
@@ -579,27 +579,27 @@ export const ProfilePage: React.FC = () => {
       {/* Account Stats */}
       <Card>
         <div className="p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Account Statistics
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div>
-              <p className="text-sm text-gray-600">Member Since</p>
-              <p className="text-xl font-semibold text-gray-900">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Member Since</p>
+              <p className="text-xl font-semibold text-gray-900 dark:text-white">
                 {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Matches Played</p>
-              <p className="text-xl font-semibold text-gray-900">0</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Matches Played</p>
+              <p className="text-xl font-semibold text-gray-900 dark:text-white">0</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Availability Rate</p>
-              <p className="text-xl font-semibold text-gray-900">0%</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Availability Rate</p>
+              <p className="text-xl font-semibold text-gray-900 dark:text-white">0%</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Preferred Position</p>
-              <p className="text-xl font-semibold text-gray-900">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Preferred Position</p>
+              <p className="text-xl font-semibold text-gray-900 dark:text-white">
                 {POSITIONS.find(p => p.value === user.preferredPosition)?.emoji || '🎯'}
               </p>
             </div>

@@ -56,9 +56,9 @@ const Toast: React.FC<ToastProps> = ({ notification, onClose }) => {
       <div className="flex items-start">
         <div className="flex-shrink-0">{icons[notification.type]}</div>
         <div className="ml-3 flex-1">
-          <p className="text-sm font-medium text-gray-900">{notification.title}</p>
+          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{notification.title}</p>
           {notification.message && (
-            <p className="mt-1 text-sm text-gray-600">{notification.message}</p>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">{notification.message}</p>
           )}
         </div>
         <button

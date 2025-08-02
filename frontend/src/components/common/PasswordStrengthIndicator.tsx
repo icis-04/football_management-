@@ -39,7 +39,7 @@ export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps>
   return (
     <div className="mt-2">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-gray-600">Password strength:</span>
+        <span className="text-xs text-gray-600 dark:text-gray-400">Password strength:</span>
         <span className={`text-xs font-medium ${
           strength.color === 'bg-red-500' ? 'text-red-600' :
           strength.color === 'bg-yellow-500' ? 'text-yellow-600' :
@@ -54,12 +54,12 @@ export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps>
           <div
             key={level}
             className={`h-1 flex-1 rounded-full transition-colors duration-200 ${
-              level <= strength.score ? strength.color : 'bg-gray-200'
+              level <= strength.score ? strength.color : 'bg-gray-200 dark:bg-gray-700'
             }`}
           />
         ))}
       </div>
-      <div className="mt-1 text-xs text-gray-500">
+      <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
         {password.length < 8 && <div>• At least 8 characters</div>}
         {!/[A-Z]/.test(password) && <div>• Include uppercase letters</div>}
         {!/[a-z]/.test(password) && <div>• Include lowercase letters</div>}
